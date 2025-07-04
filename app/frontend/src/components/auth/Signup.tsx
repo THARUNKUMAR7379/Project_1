@@ -5,6 +5,9 @@ const Signup: React.FC = () => {
   const [form, setForm] = useState({ username: '', email: '', password: '', confirmPassword: '' });
   const [errors, setErrors] = useState<{ username?: string; email?: string; password?: string; confirmPassword?: string }>({});
   const [touched, setTouched] = useState<{ username?: boolean; email?: boolean; password?: boolean; confirmPassword?: boolean }>({});
+  const [loading, setLoading] = useState(false);
+  const [apiError, setApiError] = useState('');
+  const [success, setSuccess] = useState('');
 
   const validate = () => {
     const errs: { username?: string; email?: string; password?: string; confirmPassword?: string } = {};
@@ -27,13 +30,37 @@ const Signup: React.FC = () => {
     setErrors(validate());
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const errs = validate();
     setErrors(errs);
     setTouched({ username: true, email: true, password: true, confirmPassword: true });
+    setApiError('');
+    setSuccess('');
     if (Object.keys(errs).length === 0) {
-      // Submit logic here
+      setLoading(true);
+      try {
+        const response = await fetch('http://localhost:5000/api/signup', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            username: form.username,
+            email: form.email,
+            password: form.password
+          })
+        });
+        const data = await response.json();
+        if (response.ok) {
+          setSuccess('Signup successful! You can now log in.');
+          setApiError('');
+        } else {
+          setApiError(data.message || 'Signup failed');
+        }
+      } catch (err) {
+        setApiError('Network error');
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
@@ -134,9 +161,12 @@ const Signup: React.FC = () => {
           <button
             type="submit"
             className="w-full py-3 mt-2 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-bold text-lg shadow-lg hover:from-cyan-400 hover:to-blue-500 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:ring-offset-2"
+            disabled={loading}
           >
-            Sign Up
+            {loading ? 'Signing up...' : 'Sign Up'}
           </button>
+          {apiError && <div className="text-pink-400 text-center mt-2">{apiError}</div>}
+          {success && <div className="text-green-400 text-center mt-2">{success}</div>}
         </form>
         <div className="mt-6 text-center">
           <span className="text-gray-400">Already have an account? </span>
