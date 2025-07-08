@@ -1,6 +1,7 @@
 import { createBrowserRouter } from 'react-router-dom';
 import Login from '../components/auth/Login';
 import Signup from '../components/auth/Signup';
+import ForgotPassword from '../components/auth/ForgotPassword';
 import ProfileView from '../components/profile/ProfileView';
 import ProfileEdit from '../components/profile/ProfileEdit';
 import PostCreate from '../components/posts/PostCreate';
@@ -21,6 +22,10 @@ export const router = createBrowserRouter([
   {
     path: '/signup',
     element: <Signup />,
+  },
+  {
+    path: '/forgot-password',
+    element: <ForgotPassword />,
   },
   {
     path: '/profile',

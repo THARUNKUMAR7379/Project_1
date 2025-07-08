@@ -238,3 +238,30 @@ You'll know you've successfully completed this tutorial when you can:
 ---
 
 > 💡 **Remember:** This is a learning-focused project. Take your time to understand each concept before moving to the next module.
+
+# Full-Stack Developer Portfolio
+
+A modern, production-ready portfolio with React, TailwindCSS, Flask, and MongoDB.
+
+## Features
+- Responsive dark/light UI with glassmorphism and neon accents
+- JWT authentication, profile editing, image upload, PDF resume, skill endorsement, activity log
+
+## Setup
+
+### Backend
+```
+cd server
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+cp ../.env .env
+python app.py
+```
+
+### Frontend
+```
+cd client
+npm install
+npm start
+```

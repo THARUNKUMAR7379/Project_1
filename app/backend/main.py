@@ -1,8 +1,10 @@
-from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
+from flask import Flask, jsonify
 from flask_cors import CORS
+from flask_jwt_extended import JWTManager
 from config import Config
 from dotenv import load_dotenv
+from models import db
+import os
 
 # Load environment variables
 load_dotenv()
@@ -12,14 +14,30 @@ from models.user import User, db as user_db
 from models.profile import Profile, Skill, Experience, Education, db as profile_db
 
 # Create Flask app
-app = Flask(__name__)
+app = Flask(__name__, static_folder='static')
 app.config.from_object(Config)
+app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET', 'super-secret')
 
 # Initialize extensions
 CORS(app)
+jwt = JWTManager(app)
 
 # Initialize database
-db = SQLAlchemy(app)
+db.init_app(app)
+
+# Register blueprints
+from api import auth_bp, profile_bp, posts_bp, feed_bp, jobs_bp, messaging_bp
+app.register_blueprint(auth_bp)
+app.register_blueprint(profile_bp)
+app.register_blueprint(posts_bp)
+app.register_blueprint(feed_bp)
+app.register_blueprint(jobs_bp)
+app.register_blueprint(messaging_bp)
+
+# Add a simple test route
+@app.route('/')
+def home():
+    return jsonify({'message': 'Server is running!', 'status': 'ok'})
 
 def setup_database():
     """Setup database tables"""

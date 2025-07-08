@@ -1,10 +1,14 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 
 const Login: React.FC = () => {
   const [form, setForm] = useState({ identifier: '', password: '' });
-  const [errors, setErrors] = useState<{ identifier?: string; password?: string }>({});
+  const [errors, setErrors] = useState<{ identifier?: string; password?: string; api?: string }>({});
   const [touched, setTouched] = useState<{ identifier?: boolean; password?: boolean }>({});
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+  const { login } = useAuth();
 
   const validate = () => {
     const errs: { identifier?: string; password?: string } = {};
@@ -16,6 +20,10 @@ const Login: React.FC = () => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
+    // Clear API error when user starts typing
+    if (errors.api) {
+      setErrors({ ...errors, api: undefined });
+    }
   };
 
   const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
@@ -23,13 +31,31 @@ const Login: React.FC = () => {
     setErrors(validate());
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const errs = validate();
     setErrors(errs);
     setTouched({ identifier: true, password: true });
+    
     if (Object.keys(errs).length === 0) {
-      // Submit logic here
+      setLoading(true);
+      setErrors({});
+      
+                      try {
+          const success = await login(form.identifier, form.password);
+          
+          if (success) {
+            // Navigate to profile
+            navigate('/profile');
+          } else {
+            setErrors({ api: 'Invalid credentials. Please try again.' });
+          }
+        } catch (err: any) {
+          console.error('Login error:', err);
+          setErrors({ api: err.message || 'Network error. Please try again.' });
+        } finally {
+          setLoading(false);
+        }
     }
   };
 
@@ -83,12 +109,19 @@ const Login: React.FC = () => {
               <span className="text-pink-400 text-xs mt-1 block">{errors.password}</span>
             )}
           </div>
+          {errors.api && <div className="text-pink-400 text-sm text-center mb-2">{errors.api}</div>}
           <button
             type="submit"
-            className="w-full py-3 mt-2 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-bold text-lg shadow-lg hover:from-cyan-400 hover:to-blue-500 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:ring-offset-2"
+            className="w-full py-3 mt-2 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-bold text-lg shadow-lg hover:from-cyan-400 hover:to-blue-500 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:ring-offset-2 disabled:opacity-60"
+            disabled={loading}
           >
-            Login
+            {loading ? 'Logging in...' : 'Login'}
           </button>
+          <div className="text-center">
+            <Link to="/forgot-password" className="text-cyan-400 hover:underline text-sm">
+              Forgot your password?
+            </Link>
+          </div>
         </form>
         <div className="mt-6 text-center">
           <span className="text-gray-400">Don't have an account? </span>
