@@ -1,17 +1,12 @@
 import os
 from datetime import timedelta
-from urllib.parse import quote_plus
 
 class Config:
     # Flask
     SECRET_KEY = os.environ.get('SECRET_KEY', 'dev')
     
     # Database
-    MYSQL_PASSWORD = quote_plus(os.environ.get('MYSQL_PASSWORD', 'Tharun@123'))
-    SQLALCHEMY_DATABASE_URI = os.environ.get(
-        'DATABASE_URL',
-        f"mysql://root:{MYSQL_PASSWORD}@localhost/prok_db"
-    )
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL', 'mysql://root:Tharun%40123@localhost/prok_db')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     
     # JWT

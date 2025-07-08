@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 
 const Signup: React.FC = () => {
   const [form, setForm] = useState({ username: '', email: '', password: '', confirmPassword: '' });
-  const [errors, setErrors] = useState<{ username?: string; email?: string; password?: string; confirmPassword?: string }>({});
+  const [errors, setErrors] = useState<{ username?: string; email?: string; password?: string; confirmPassword?: string; api?: string }>({});
   const [touched, setTouched] = useState<{ username?: boolean; email?: boolean; password?: boolean; confirmPassword?: boolean }>({});
   const [loading, setLoading] = useState(false);
-  const [apiError, setApiError] = useState('');
-  const [success, setSuccess] = useState('');
+  const navigate = useNavigate();
+  const { signup } = useAuth();
 
   const validate = () => {
     const errs: { username?: string; email?: string; password?: string; confirmPassword?: string } = {};
@@ -23,6 +24,10 @@ const Signup: React.FC = () => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
+    // Clear API error when user starts typing
+    if (errors.api) {
+      setErrors({ ...errors, api: undefined });
+    }
   };
 
   const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
@@ -35,29 +40,23 @@ const Signup: React.FC = () => {
     const errs = validate();
     setErrors(errs);
     setTouched({ username: true, email: true, password: true, confirmPassword: true });
-    setApiError('');
-    setSuccess('');
+    
     if (Object.keys(errs).length === 0) {
       setLoading(true);
+      setErrors({});
+      
       try {
-        const response = await fetch('http://localhost:5000/api/signup', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            username: form.username,
-            email: form.email,
-            password: form.password
-          })
-        });
-        const data = await response.json();
-        if (response.ok) {
-          setSuccess('Signup successful! You can now log in.');
-          setApiError('');
+        const success = await signup(form.username, form.email, form.password);
+        
+        if (success) {
+          // Navigate to profile
+          navigate('/profile');
         } else {
-          setApiError(data.message || 'Signup failed');
+          setErrors({ api: 'Signup failed. Please try again.' });
         }
-      } catch (err) {
-        setApiError('Network error');
+      } catch (err: any) {
+        console.error('Signup error:', err);
+        setErrors({ api: err.message || 'Network error. Please try again.' });
       } finally {
         setLoading(false);
       }
@@ -158,15 +157,14 @@ const Signup: React.FC = () => {
               <span className="text-pink-400 text-xs mt-1 block">{errors.confirmPassword}</span>
             )}
           </div>
+          {errors.api && <div className="text-pink-400 text-sm text-center mb-2">{errors.api}</div>}
           <button
             type="submit"
-            className="w-full py-3 mt-2 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-bold text-lg shadow-lg hover:from-cyan-400 hover:to-blue-500 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:ring-offset-2"
+            className="w-full py-3 mt-2 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-bold text-lg shadow-lg hover:from-cyan-400 hover:to-blue-500 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:ring-offset-2 disabled:opacity-60"
             disabled={loading}
           >
-            {loading ? 'Signing up...' : 'Sign Up'}
+            {loading ? 'Creating Account...' : 'Sign Up'}
           </button>
-          {apiError && <div className="text-pink-400 text-center mt-2">{apiError}</div>}
-          {success && <div className="text-green-400 text-center mt-2">{success}</div>}
         </form>
         <div className="mt-6 text-center">
           <span className="text-gray-400">Already have an account? </span>
