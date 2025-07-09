@@ -5,10 +5,11 @@ import { profileApi } from './api';
 import { FaEnvelope, FaPhone, FaUserEdit, FaUpload, FaPlus, FaTrash, FaLinkedin, FaGithub } from 'react-icons/fa';
 import { useDropzone } from 'react-dropzone';
 import toast from 'react-hot-toast';
+import type { Profile } from '../../types';
 
 const validateEmail = (email: string) => /\S+@\S+\.\S+/.test(email);
 
-const defaultProfile = {
+const defaultProfile: Profile = {
   id: 0,
   user_id: 0,
   avatar: '',
@@ -17,9 +18,9 @@ const defaultProfile = {
   title: '',
   bio: '',
   location: '',
-  address: '', // New address field
+  address: '',
   skills: [],
-  socials: { linkedin: '', github: '', phone: '', email: '' },
+  socials: {},
   experiences: [],
   education: [],
 };
@@ -27,7 +28,14 @@ const defaultProfile = {
 const ProfileEdit = () => {
   const { profile, updateProfile, refreshProfile } = useAuth();
   const navigate = useNavigate();
-  const [form, setForm] = useState<any>(profile || defaultProfile);
+  const [form, setForm] = useState<Profile>({
+    ...defaultProfile,
+    ...profile,
+    skills: profile?.skills || [],
+    socials: { ...defaultProfile.socials, ...(profile?.socials || {}) },
+    banner: profile?.banner || '',
+    address: profile?.address || '',
+  });
   const [errors, setErrors] = useState<any>({});
   const [touched, setTouched] = useState<any>({});
   const [submitting, setSubmitting] = useState(false);
@@ -62,7 +70,7 @@ const ProfileEdit = () => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setForm((prev: any) => ({ ...prev, [name]: value }));
+    setForm((prev: Profile) => ({ ...prev, [name]: value }));
     setTouched((prev: any) => ({ ...prev, [name]: true }));
     validate(name, value);
   };
@@ -84,7 +92,7 @@ const ProfileEdit = () => {
         const res = await profileApi.uploadAvatar(file);
         if (res.success && res.url) {
           setAvatarPreview(res.url);
-          setForm((prev: any) => ({ ...prev, avatar: res.url }));
+          setForm((prev: Profile) => ({ ...prev, avatar: res.url }));
           setUploadProgress(100);
         } else {
           setError(res.message || 'Upload failed.');
@@ -114,7 +122,7 @@ const ProfileEdit = () => {
       const res = await profileApi.uploadAvatar(file);
       if (res.success && res.url) {
         setAvatarPreview(res.url);
-        setForm((prev: any) => ({ ...prev, avatar: res.url }));
+        setForm((prev: Profile) => ({ ...prev, avatar: res.url }));
         setUploadProgress(100);
       } else {
         setError(res.message || 'Upload failed.');
@@ -155,7 +163,7 @@ const ProfileEdit = () => {
       if (data.success && data.url) {
         setBanner(data.url);
         setBannerPreview(data.url);
-        setForm((prev: any) => ({ ...prev, banner: data.url }));
+        setForm((prev: Profile) => ({ ...prev, banner: data.url }));
         toast.success('Banner updated!');
       } else {
         toast.error(data.message || 'Banner upload failed.');
@@ -184,27 +192,27 @@ const ProfileEdit = () => {
   const bannerDropzone = useDropzone({ onDrop: handleBannerDrop, accept: { 'image/jpeg': [], 'image/png': [] } });
 
   // Dynamic fields for experience/education
-  const addExperience = () => setForm((prev: any) => ({ ...prev, experiences: [...(prev.experiences || []), { title: '', company: '', start_date: '', end_date: '', description: '' }] }));
-  const removeExperience = (idx: number) => setForm((prev: any) => ({ ...prev, experiences: prev.experiences.filter((_: any, i: number) => i !== idx) }));
-  const updateExperience = (idx: number, field: string, value: string) => setForm((prev: any) => ({ ...prev, experiences: prev.experiences.map((exp: any, i: number) => i === idx ? { ...exp, [field]: value } : exp) }));
+  const addExperience = () => setForm((prev: Profile) => ({ ...prev, experiences: [...(prev.experiences || []), { title: '', company: '', start_date: '', end_date: '', description: '' }] }));
+  const removeExperience = (idx: number) => setForm((prev: Profile) => ({ ...prev, experiences: prev.experiences.filter((_: any, i: number) => i !== idx) }));
+  const updateExperience = (idx: number, field: string, value: string) => setForm((prev: Profile) => ({ ...prev, experiences: prev.experiences.map((exp: any, i: number) => i === idx ? { ...exp, [field]: value } : exp) }));
 
-  const addEducation = () => setForm((prev: any) => ({ ...prev, education: [...(prev.education || []), { school: '', degree: '', field: '', start_date: '', end_date: '' }] }));
-  const removeEducation = (idx: number) => setForm((prev: any) => ({ ...prev, education: prev.education.filter((_: any, i: number) => i !== idx) }));
-  const updateEducation = (idx: number, field: string, value: string) => setForm((prev: any) => ({ ...prev, education: prev.education.map((edu: any, i: number) => i === idx ? { ...edu, [field]: value } : edu) }));
+  const addEducation = () => setForm((prev: Profile) => ({ ...prev, education: [...(prev.education || []), { school: '', degree: '', field: '', start_date: '', end_date: '' }] }));
+  const removeEducation = (idx: number) => setForm((prev: Profile) => ({ ...prev, education: prev.education.filter((_: any, i: number) => i !== idx) }));
+  const updateEducation = (idx: number, field: string, value: string) => setForm((prev: Profile) => ({ ...prev, education: prev.education.map((edu: any, i: number) => i === idx ? { ...edu, [field]: value } : edu) }));
 
   // Multi-tag input for skills
   const [skillInput, setSkillInput] = useState('');
   const addSkill = () => {
     if (skillInput.trim() && !form.skills.includes(skillInput.trim())) {
-      setForm((prev: any) => ({ ...prev, skills: [...prev.skills, skillInput.trim()] }));
+      setForm((prev) => ({ ...prev, skills: [...prev.skills, skillInput.trim()] }));
       setSkillInput('');
     }
   };
-  const removeSkill = (idx: number) => setForm((prev: any) => ({ ...prev, skills: prev.skills.filter((_: any, i: number) => i !== idx) }));
+  const removeSkill = (idx: number) => setForm((prev: Profile) => ({ ...prev, skills: prev.skills.filter((_: any, i: number) => i !== idx) }));
 
   const handleSocialChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setForm((prev: any) => ({ ...prev, socials: { ...prev.socials, [name]: value } }));
+    setForm((prev: Profile) => ({ ...prev, socials: { ...prev.socials, [name]: value } }));
   };
 
   // Enhanced validation for all required fields
@@ -237,8 +245,10 @@ const ProfileEdit = () => {
     try {
       const payload = {
         ...form,
-        skills: Array.isArray(form.skills) ? form.skills : (form.skills || '').split(',').map((s: string) => s.trim()).filter(Boolean),
+        skills: Array.isArray(form.skills) ? form.skills : (typeof form.skills === 'string' ? form.skills.split(',').map((s: string) => s.trim()).filter(Boolean) : []),
         socials: typeof form.socials === 'object' && form.socials !== null ? form.socials : {},
+        address: form.address,
+        title: form.title,
       };
       const res = await updateProfile(payload);
       if (res.success) {
@@ -266,6 +276,14 @@ const ProfileEdit = () => {
       <div className="w-full max-w-2xl bg-white/10 rounded-2xl shadow-2xl p-8 border border-white/20 relative overflow-y-auto max-h-[90vh]">
         <h2 className="text-2xl font-bold mb-6 flex items-center gap-2 text-white"><FaUserEdit className="text-cyan-400" /> Edit Profile</h2>
         <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Show all backend errors at the top */}
+          {submitStatus === 'error' && errors && typeof errors === 'object' && Object.keys(errors).length > 0 && (
+            <div className="mb-4 p-3 bg-pink-500/10 border border-pink-400/30 rounded-lg text-pink-400 text-center">
+              {Object.entries(errors).map(([field, msg]) => (
+                <div key={field}>{field}: {msg}</div>
+              ))}
+            </div>
+          )}
           {/* Avatar Upload */}
           <div {...getRootProps()} className={`mb-4 flex items-center gap-6 cursor-pointer group ${isDragActive ? 'ring-2 ring-cyan-400' : ''}`}>
             <div
@@ -322,10 +340,11 @@ const ProfileEdit = () => {
               {errors.name && <div className="text-pink-400 text-xs mt-1">{errors.name}</div>}
             </div>
             <div>
-              <label className="block text-sm font-semibold mb-1 text-white">Title *</label>
+              <label htmlFor="title" className="block text-sm font-semibold mb-1 text-white">Title *</label>
               <input
-                type="text"
+                id="title"
                 name="title"
+                type="text"
                 value={form.title}
                 onChange={handleChange}
                 onBlur={() => setTouched((prev: any) => ({ ...prev, title: true }))}
@@ -364,7 +383,7 @@ const ProfileEdit = () => {
               type="text"
               name="skills"
               value={form.skills.join(', ')}
-              onChange={(e) => setForm((prev: any) => ({ ...prev, skills: e.target.value.split(',').map((s: string) => s.trim()).filter(Boolean) }))}
+              onChange={(e) => setForm((prev) => ({ ...prev, skills: e.target.value.split(',').map((s: string) => s.trim()).filter(Boolean) }))}
               onBlur={() => setTouched((prev: any) => ({ ...prev, skills: true }))}
               className={`w-full px-3 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-cyan-400 bg-black/60 text-white ${errors.skills && touched.skills ? 'border-pink-500' : 'border-white/20'}`}
               placeholder="Comma separated (e.g. React, Node.js)"
@@ -473,15 +492,18 @@ const ProfileEdit = () => {
           {/* Address Field (replaces Contact) */}
           <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-semibold mb-1 text-white">Address</label>
+              <label htmlFor="address" className="block text-sm font-semibold mb-1 text-white">Address</label>
               <input
-                type="text"
+                id="address"
                 name="address"
+                type="text"
                 value={form.address}
                 onChange={handleChange}
-                className="w-full px-3 py-2 rounded-lg border border-white/20 focus:outline-none focus:ring-2 focus:ring-cyan-400 bg-black/60 text-white"
-                placeholder="City, State, Pincode"
+                onBlur={() => setTouched((prev: any) => ({ ...prev, address: true }))}
+                placeholder="Enter your address"
+                className={`w-full px-3 py-2 rounded-lg border border-white/20 focus:outline-none focus:ring-2 focus:ring-cyan-400 bg-black/60 text-white ${errors.address && touched.address ? 'border-pink-500' : 'border-white/20'}`}
               />
+              {errors.address && touched.address && <div className="text-pink-400 text-xs mt-1">{errors.address}</div>}
             </div>
             <div>
               <label className="block text-sm font-semibold mb-1 text-white">LinkedIn</label>

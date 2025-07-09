@@ -44,30 +44,42 @@ export const profileApi = {
   updateProfile: async (profileData: any) => {
     try {
       const token = localStorage.getItem('token');
+      console.log('[profileApi] JWT token:', token);
       if (!token) {
+        alert('You are not logged in. Please log in again.');
         throw new Error('No authentication token found');
       }
-      console.log('[profileApi] Updating profile with data:', profileData);
-      const response = await fetch(`${API_URL}/profile`, {
+      // Remove empty fields from payload
+      const cleaned = Object.fromEntries(Object.entries(profileData).filter(([k, v]) => v !== undefined && v !== null && v !== ''));
+      // Clean socials
+      if (cleaned.socials) {
+        cleaned.socials = Object.fromEntries(Object.entries(cleaned.socials).filter(([_, v]) => typeof v === 'string' && v.trim() !== ''));
+      }
+      console.log('[profileApi] Sending update payload:', cleaned);
+      const response = await fetch('http://localhost:5000/api/profile', {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(profileData),
+        body: JSON.stringify(cleaned),
       });
-      console.log('[profileApi] Update response status:', response.status);
-      const data = await response.json();
+      let data = {};
+      try {
+        data = await response.json();
+      } catch (e) {
+        data = { message: 'Invalid server response' };
+      }
+      console.log('[profileApi] Update response:', data);
       if (!response.ok) {
-        // Return all error details for 400/422
         return { success: false, ...data, status: response.status };
       }
-      if (data.success && data.profile) {
+      if (typeof data === 'object' && data !== null && 'success' in data && (data as any).success && 'profile' in data) {
         return data;
       } else {
         return { success: false, ...data };
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('[profileApi] Error updating profile:', error);
       return {
         success: false,
@@ -83,41 +95,37 @@ export const profileApi = {
       if (!token) {
         throw new Error('No authentication token found');
       }
-
-      console.log('[profileApi] Uploading avatar:', file.name);
-      
+      if (!file) return { success: true, url: null };
       const formData = new FormData();
       formData.append('file', file);
-
-      const response = await fetch(`${API_URL}/profile/image`, {
+      const response = await fetch('http://localhost:5000/api/profile/image', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
         },
         body: formData,
       });
-
-      console.log('[profileApi] Upload response status:', response.status);
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+      let data = {};
+      try {
+        data = await response.json();
+      } catch (e) {
+        data = { message: 'Invalid server response' };
       }
-
-      const data = await response.json();
-      console.log('[profileApi] Upload response:', data);
-      
-      if (data.success && data.url) {
+      console.log('[profileApi] Avatar upload response:', data);
+      if (!response.ok) {
+        return { success: false, ...data, status: response.status };
+      }
+      if (typeof data === 'object' && data !== null && 'success' in data && (data as any).success && 'url' in data) {
         return data;
       } else {
-        throw new Error(data.message || 'Failed to upload avatar');
+        return { success: false, ...data };
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('[profileApi] Error uploading avatar:', error);
-      return { 
-        success: false, 
+      return {
+        success: false,
         message: error instanceof Error ? error.message : 'Failed to upload avatar',
-        url: null 
+        url: null
       };
     }
   },
