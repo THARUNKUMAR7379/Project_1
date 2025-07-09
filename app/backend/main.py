@@ -3,23 +3,25 @@ from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 from config import Config
 from dotenv import load_dotenv
-from models import db
+from extensions import db  # FIX: import db from extensions, not models
 import os
 
 # Load environment variables
 load_dotenv()
 
 # Import models
-from models.user import User, db as user_db
-from models.profile import Profile, Skill, Experience, Education, db as profile_db
+from models.user import User  # Only import User, not db
+from models.profile import Profile, Skill, Experience, Education  # Only import models, not db
 
 # Create Flask app
 app = Flask(__name__, static_folder='static')
 app.config.from_object(Config)
 app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET', 'super-secret')
 
+# Enable CORS for both Vite (5174) and React (3000) dev servers
+CORS(app, origins=["http://localhost:5174", "http://localhost:3000"], supports_credentials=True)
+
 # Initialize extensions
-CORS(app)
 jwt = JWTManager(app)
 
 # Initialize database

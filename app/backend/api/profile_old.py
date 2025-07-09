@@ -61,7 +61,7 @@ def get_profile():
             'title': profile.title or '',
             'bio': profile.bio or '',
             'location': profile.location or '',
-            'address': profile.address or '',
+            'contact': profile.contact or '',
             'skills': profile.skills or [],
             'socials': profile.socials or {},
             'experiences': [
@@ -116,8 +116,8 @@ def update_profile():
             errors['bio'] = 'Bio must be a string up to 1000 chars.'
         if 'skills' in data and (not isinstance(data['skills'], list) or len(data['skills']) > 30):
             errors['skills'] = 'Skills must be a list of up to 30 items.'
-        if 'address' in data and (not isinstance(data['address'], str) or len(data['address']) > 200):
-            errors['address'] = 'Address must be a string up to 200 chars.'
+        if 'contact' in data and (not isinstance(data['contact'], str) or len(data['contact']) > 100):
+            errors['contact'] = 'Contact must be a string up to 100 chars.'
         if 'socials' in data and (not isinstance(data['socials'], dict)):
             errors['socials'] = 'Socials must be a dictionary.'
         
@@ -125,7 +125,7 @@ def update_profile():
             return jsonify(success=False, errors=errors), 400
         
         # Update basic fields
-        for field in ['name', 'title', 'bio', 'location', 'address', 'skills', 'socials']:
+        for field in ['name', 'title', 'bio', 'location', 'contact', 'skills', 'socials']:
             if field in data:
                 setattr(profile, field, data[field])
         
@@ -185,7 +185,7 @@ def update_profile():
             'title': profile.title or '',
             'bio': profile.bio or '',
             'location': profile.location or '',
-            'address': profile.address or '',
+            'contact': profile.contact or '',
             'skills': profile.skills or [],
             'socials': profile.socials or {},
             'experiences': [
@@ -217,55 +217,40 @@ def update_profile():
 @profile_bp.route('/profile/image', methods=['POST'])
 @jwt_required()
 def upload_avatar():
+    user_id = get_jwt_identity()
+    user = User.query.get(user_id)
+    if not user:
+        return jsonify(success=False, message='User not found'), 404
+    profile = Profile.query.filter_by(user_id=user.id).first()
+    if not profile:
+        profile = Profile(user_id=user.id)
+        db.session.add(profile)
+        db.session.commit()
+    if 'file' not in request.files:
+        return jsonify(success=False, message='No file part'), 400
+    file = request.files['file']
+    if file.filename == '':
+        return jsonify(success=False, message='No selected file'), 400
+    if not allowed_file(file.filename):
+        return jsonify(success=False, message='Invalid file type. Only jpg/png allowed.'), 400
+    file.seek(0, os.SEEK_END)
+    file_length = file.tell()
+    file.seek(0)
+    if file_length > MAX_IMAGE_SIZE_MB * 1024 * 1024:
+        return jsonify(success=False, message='File too large. Max 5MB.'), 400
     try:
-        user_id = get_jwt_identity()
-        user = User.query.get(user_id)
-        if not user:
-            return jsonify(success=False, message='User not found'), 404
-        
-        profile = Profile.query.filter_by(user_id=user.id).first()
-        if not profile:
-            profile = Profile(user_id=user.id)
-            db.session.add(profile)
-            db.session.commit()
-        
-        if 'file' not in request.files:
-            return jsonify(success=False, message='No file part'), 400
-        
-        file = request.files['file']
-        if file.filename == '':
-            return jsonify(success=False, message='No selected file'), 400
-        
-        if not allowed_file(file.filename):
-            return jsonify(success=False, message='Invalid file type. Only jpg/png allowed.'), 400
-        
-        # Check file size
-        file.seek(0, os.SEEK_END)
-        file_length = file.tell()
-        file.seek(0)
-        if file_length > MAX_IMAGE_SIZE_MB * 1024 * 1024:
-            return jsonify(success=False, message='File too large. Max 5MB.'), 400
-        
-        # Process and save image
         compressed = compress_image(file)
         unique_id = str(uuid.uuid4())
         filename = f"avatar_{user.id}_{unique_id}.jpg"
         upload_dir = os.path.join(current_app.root_path, 'static', 'uploads')
         os.makedirs(upload_dir, exist_ok=True)
         filepath = os.path.join(upload_dir, filename)
-        
         with open(filepath, 'wb') as f:
             f.write(compressed.read())
-        
-        # Update profile with new avatar
         profile.avatar = f'/static/uploads/{filename}'
         db.session.commit()
-        
-        avatar_url = f"http://localhost:5000{profile.avatar}"
-        return jsonify(success=True, url=avatar_url)
-        
-    except Exception as e:
-        print(f"Error uploading avatar: {e}")
+        return jsonify(success=True, url=profile.avatar)
+    except Exception:
         return jsonify(success=False, message='Image upload failed. Please try again.'), 500
 
 @profile_bp.route('/profile/resume', methods=['GET'])
@@ -293,4 +278,6 @@ def profile_image_options():
     response.headers['Access-Control-Allow-Origin'] = '*'
     response.headers['Access-Control-Allow-Methods'] = 'POST,OPTIONS'
     response.headers['Access-Control-Allow-Headers'] = 'Content-Type,Authorization'
-    return response 
+    return response
+
+# Routes will be implemented here 

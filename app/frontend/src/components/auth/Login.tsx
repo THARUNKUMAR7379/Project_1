@@ -41,21 +41,20 @@ const Login: React.FC = () => {
       setLoading(true);
       setErrors({});
       
-                      try {
-          const success = await login(form.identifier, form.password);
-          
-          if (success) {
-            // Navigate to profile
-            navigate('/profile');
-          } else {
-            setErrors({ api: 'Invalid credentials. Please try again.' });
-          }
-        } catch (err: any) {
-          console.error('Login error:', err);
-          setErrors({ api: err.message || 'Network error. Please try again.' });
-        } finally {
-          setLoading(false);
+      try {
+        const result = await login(form.identifier, form.password);
+        if (result.success) {
+          // Navigate to profile
+          navigate('/profile');
+        } else {
+          setErrors({ api: result.message || 'Invalid credentials. Please try again.' });
         }
+      } catch (err: any) {
+        console.error('Login error:', err);
+        setErrors({ api: err.message || 'Network error. Please try again.' });
+      } finally {
+        setLoading(false);
+      }
     }
   };
 

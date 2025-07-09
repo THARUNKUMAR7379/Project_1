@@ -9,6 +9,7 @@ import PostList from '../components/posts/PostList';
 import Feed from '../components/feed/Feed';
 import JobList from '../components/job-board/JobList';
 import MessageList from '../components/messaging/MessageList';
+import NotFound from '../components/NotFound';
 
 export const router = createBrowserRouter([
   {
@@ -32,7 +33,7 @@ export const router = createBrowserRouter([
     element: <ProfileView />,
   },
   {
-    path: '/profile/edit',
+    path: '/edit-profile',
     element: <ProfileEdit />,
   },
   {
@@ -50,5 +51,9 @@ export const router = createBrowserRouter([
   {
     path: '/messages',
     element: <MessageList />,
+  },
+  {
+    path: '*',
+    element: <NotFound />,
   },
 ]); 

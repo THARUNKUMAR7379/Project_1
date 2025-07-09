@@ -8,11 +8,17 @@ export interface User {
 export interface Profile {
   id: number;
   user_id: number;
+  avatar: string;
+  banner: string;
+  name: string;
+  title: string;
   bio: string;
   location: string;
+  address: string;
   skills: string[];
-  experience: Experience[];
-  education: Education[];
+  socials: Record<string, string>;
+  experiences: any[];
+  education: any[];
 }
 
 export interface Experience {
