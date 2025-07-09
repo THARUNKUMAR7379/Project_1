@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify, send_file, current_app, make_response
+from flask import Blueprint, request, jsonify, send_file, current_app, make_response, send_from_directory
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from werkzeug.utils import secure_filename
 from PIL import Image
@@ -8,8 +8,10 @@ import uuid
 from datetime import datetime
 from models.user import User
 from models.profile import Profile, Experience, Education, db
+from flask_cors import CORS
 
 profile_bp = Blueprint('profile', __name__, url_prefix='/api')
+CORS(profile_bp, origins=["http://localhost:5173"], supports_credentials=True)
 
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 MAX_IMAGE_SIZE_MB = 5
@@ -28,6 +30,10 @@ def compress_image(file_stream):
     img.save(output, format='JPEG', quality=85)
     output.seek(0)
     return output
+
+@profile_bp.before_request
+def log_request():
+    print(f"[PROFILE API] {request.method} {request.path} Headers: {dict(request.headers)}")
 
 @profile_bp.route('/profile', methods=['GET'])
 @jwt_required()
@@ -96,38 +102,29 @@ def update_profile():
         if not request.is_json:
             return jsonify(success=False, message='Request must be JSON.'), 422
         user_id = get_jwt_identity()
+        if not user_id:
+            print('[PROFILE API] JWT missing or invalid')
+            return jsonify(success=False, message='JWT missing or invalid'), 401
         user = User.query.get(user_id)
         if not user:
             return jsonify(success=False, message='User not found'), 404
         data = request.get_json() or {}
+        print('Received profile update:', data)
         profile = Profile.query.filter_by(user_id=user.id).first()
         if not profile:
             profile = Profile(user_id=user.id)
             db.session.add(profile)
-        # Validate only present fields
-        errors = {}
-        if 'name' in data and (not isinstance(data['name'], str) or len(data['name']) > 100):
-            errors['name'] = 'Name must be a string up to 100 chars.'
-        if 'title' in data and (not isinstance(data['title'], str) or len(data['title']) > 100):
-            errors['title'] = 'Title must be a string up to 100 chars.'
-        if 'location' in data and (not isinstance(data['location'], str) or len(data['location']) > 100):
-            errors['location'] = 'Location must be a string up to 100 chars.'
-        if 'bio' in data and (not isinstance(data['bio'], str) or len(data['bio']) > 1000):
-            errors['bio'] = 'Bio must be a string up to 1000 chars.'
-        if 'skills' in data and (not isinstance(data['skills'], list) or len(data['skills']) > 30):
-            errors['skills'] = 'Skills must be a list of up to 30 items.'
-        if 'address' in data and (not isinstance(data['address'], str) or len(data['address']) > 200):
-            errors['address'] = 'Address must be a string up to 200 chars.'
-        if 'socials' in data and (not isinstance(data['socials'], dict)):
-            errors['socials'] = 'Socials must be a dictionary.'
-        if errors:
-            return jsonify(success=False, errors=errors), 400
-        # Update only present fields
-        for field in ['name', 'title', 'bio', 'location', 'address', 'skills', 'socials']:
-            if field in data:
-                setattr(profile, field, data[field])
-        
-        # Handle experiences
+        # Use last saved value or fallback default for missing/empty fields
+        def fallback(field, default=''):
+            return data.get(field) if data.get(field) not in [None, ''] else getattr(profile, field, default)
+        profile.name = fallback('name')
+        profile.title = fallback('title')
+        profile.bio = fallback('bio')
+        profile.location = fallback('location')
+        profile.address = fallback('address')
+        profile.skills = data.get('skills') if isinstance(data.get('skills'), list) and data.get('skills') else (profile.skills or [])
+        profile.socials = data.get('socials') if isinstance(data.get('socials'), dict) and data.get('socials') else (profile.socials or {})
+        # Experiences and education (optional, fallback to existing)
         if 'experiences' in data and isinstance(data['experiences'], list):
             # Clear existing experiences
             for exp in profile.experiences:
@@ -173,7 +170,7 @@ def update_profile():
             if profile.avatar.startswith('http'):
                 avatar_url = profile.avatar
             else:
-                avatar_url = f"http://localhost:5000{profile.avatar}"
+                avatar_url = f"/api/uploads/{os.path.basename(profile.avatar)}"
         
         return jsonify(success=True, profile={
             'id': profile.id,
@@ -216,38 +213,47 @@ def update_profile():
 @jwt_required()
 def upload_avatar():
     try:
+        user_id = get_jwt_identity()
+        user = User.query.get(user_id)
+        if not user:
+            print('[UPLOAD] User not found')
+            return jsonify(success=False, message='User not found'), 404
+        profile = Profile.query.filter_by(user_id=user.id).first()
+        if not profile:
+            profile = Profile(user_id=user.id)
+            db.session.add(profile)
+            db.session.commit()
         if 'file' not in request.files:
+            print('[UPLOAD] No file part in request')
             return jsonify(success=False, message='No file part'), 422
         file = request.files['file']
         if file.filename == '':
+            print('[UPLOAD] No selected file')
             return jsonify(success=False, message='No selected file'), 400
         if not allowed_file(file.filename):
+            print('[UPLOAD] Invalid file type:', file.filename)
             return jsonify(success=False, message='Invalid file type. Only jpg/png allowed.'), 400
         file.seek(0, os.SEEK_END)
         file_length = file.tell()
         file.seek(0)
         if file_length > MAX_IMAGE_SIZE_MB * 1024 * 1024:
+            print('[UPLOAD] File too large:', file_length)
             return jsonify(success=False, message='File too large. Max 5MB.'), 400
-        # Process and save image
         compressed = compress_image(file)
         unique_id = str(uuid.uuid4())
         filename = f"avatar_{user.id}_{unique_id}.jpg"
         upload_dir = os.path.join(current_app.root_path, 'static', 'uploads')
         os.makedirs(upload_dir, exist_ok=True)
         filepath = os.path.join(upload_dir, filename)
-        
         with open(filepath, 'wb') as f:
             f.write(compressed.read())
-        
-        # Update profile with new avatar
         profile.avatar = f'/static/uploads/{filename}'
         db.session.commit()
-        
-        avatar_url = f"http://localhost:5000{profile.avatar}"
+        avatar_url = f"/api/uploads/{filename}"
+        print('[UPLOAD] Avatar uploaded:', avatar_url)
         return jsonify(success=True, url=avatar_url)
-        
     except Exception as e:
-        print(f"Error uploading avatar: {e}")
+        print(f"[UPLOAD] Error uploading avatar: {e}")
         return jsonify(success=False, message='Image upload failed. Please try again.'), 500
 
 @profile_bp.route('/profile/resume', methods=['GET'])
@@ -261,6 +267,12 @@ def download_resume():
         c.save()
     return send_file(resume_path, as_attachment=True)
 
+# Serve uploaded images
+@profile_bp.route('/uploads/<filename>', methods=['GET'])
+def uploaded_file(filename):
+    upload_dir = os.path.join(current_app.root_path, 'static', 'uploads')
+    return send_from_directory(upload_dir, filename)
+
 @profile_bp.route('/profile', methods=['OPTIONS'])
 def profile_options():
     response = make_response()
@@ -272,7 +284,8 @@ def profile_options():
 @profile_bp.route('/profile/image', methods=['OPTIONS'])
 def profile_image_options():
     response = make_response()
-    response.headers['Access-Control-Allow-Origin'] = '*'
+    response.headers['Access-Control-Allow-Origin'] = 'http://localhost:5173'
     response.headers['Access-Control-Allow-Methods'] = 'POST,OPTIONS'
     response.headers['Access-Control-Allow-Headers'] = 'Content-Type,Authorization'
+    response.headers['Access-Control-Allow-Credentials'] = 'true'
     return response 
