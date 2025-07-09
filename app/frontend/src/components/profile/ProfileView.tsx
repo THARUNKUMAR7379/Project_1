@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { profileApi } from './api';
@@ -14,6 +14,21 @@ const ProfileView: React.FC = () => {
   const [bannerUploading, setBannerUploading] = useState(false);
   const [bannerPreview, setBannerPreview] = useState(profile?.banner || '');
   const bannerInputRef = useRef<HTMLInputElement>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      setLoading(true);
+      try {
+        await refreshProfile();
+      } catch (err) {
+        toast.error('Failed to load profile');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProfile();
+  }, []);
 
   // Banner upload logic
   const handleBannerChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -73,6 +88,7 @@ const ProfileView: React.FC = () => {
   const formatDate = (dateString: string) => dateString ? new Date(dateString).toLocaleDateString('en-US', { year: 'numeric', month: 'short' }) : 'Present';
 
   if (!user) return <div className="min-h-screen flex items-center justify-center text-white">Please log in.</div>;
+  if (loading) return <div className="min-h-screen flex items-center justify-center text-white">Loading...</div>;
 
   return (
     <div className="min-h-screen bg-gray-900 text-white">

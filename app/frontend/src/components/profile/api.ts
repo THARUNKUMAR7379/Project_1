@@ -47,9 +47,7 @@ export const profileApi = {
       if (!token) {
         throw new Error('No authentication token found');
       }
-
       console.log('[profileApi] Updating profile with data:', profileData);
-      
       const response = await fetch(`${API_URL}/profile`, {
         method: 'PUT',
         headers: {
@@ -58,28 +56,23 @@ export const profileApi = {
         },
         body: JSON.stringify(profileData),
       });
-
       console.log('[profileApi] Update response status:', response.status);
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
-      }
-
       const data = await response.json();
-      console.log('[profileApi] Update response:', data);
-      
+      if (!response.ok) {
+        // Return all error details for 400/422
+        return { success: false, ...data, status: response.status };
+      }
       if (data.success && data.profile) {
         return data;
       } else {
-        throw new Error(data.message || 'Failed to update profile');
+        return { success: false, ...data };
       }
     } catch (error) {
       console.error('[profileApi] Error updating profile:', error);
-      return { 
-        success: false, 
+      return {
+        success: false,
         message: error instanceof Error ? error.message : 'Failed to update profile',
-        profile: null 
+        profile: null
       };
     }
   },

@@ -93,18 +93,18 @@ def get_profile():
 @jwt_required()
 def update_profile():
     try:
+        if not request.is_json:
+            return jsonify(success=False, message='Request must be JSON.'), 422
         user_id = get_jwt_identity()
         user = User.query.get(user_id)
         if not user:
             return jsonify(success=False, message='User not found'), 404
-        
-        data = request.json or {}
+        data = request.get_json() or {}
         profile = Profile.query.filter_by(user_id=user.id).first()
         if not profile:
             profile = Profile(user_id=user.id)
             db.session.add(profile)
-        
-        # Validate and update basic fields
+        # Validate only present fields
         errors = {}
         if 'name' in data and (not isinstance(data['name'], str) or len(data['name']) > 100):
             errors['name'] = 'Name must be a string up to 100 chars.'
@@ -120,11 +120,9 @@ def update_profile():
             errors['address'] = 'Address must be a string up to 200 chars.'
         if 'socials' in data and (not isinstance(data['socials'], dict)):
             errors['socials'] = 'Socials must be a dictionary.'
-        
         if errors:
             return jsonify(success=False, errors=errors), 400
-        
-        # Update basic fields
+        # Update only present fields
         for field in ['name', 'title', 'bio', 'location', 'address', 'skills', 'socials']:
             if field in data:
                 setattr(profile, field, data[field])
@@ -218,34 +216,18 @@ def update_profile():
 @jwt_required()
 def upload_avatar():
     try:
-        user_id = get_jwt_identity()
-        user = User.query.get(user_id)
-        if not user:
-            return jsonify(success=False, message='User not found'), 404
-        
-        profile = Profile.query.filter_by(user_id=user.id).first()
-        if not profile:
-            profile = Profile(user_id=user.id)
-            db.session.add(profile)
-            db.session.commit()
-        
         if 'file' not in request.files:
-            return jsonify(success=False, message='No file part'), 400
-        
+            return jsonify(success=False, message='No file part'), 422
         file = request.files['file']
         if file.filename == '':
             return jsonify(success=False, message='No selected file'), 400
-        
         if not allowed_file(file.filename):
             return jsonify(success=False, message='Invalid file type. Only jpg/png allowed.'), 400
-        
-        # Check file size
         file.seek(0, os.SEEK_END)
         file_length = file.tell()
         file.seek(0)
         if file_length > MAX_IMAGE_SIZE_MB * 1024 * 1024:
             return jsonify(success=False, message='File too large. Max 5MB.'), 400
-        
         # Process and save image
         compressed = compress_image(file)
         unique_id = str(uuid.uuid4())

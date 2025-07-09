@@ -70,6 +70,7 @@ const ProfileEdit = () => {
   const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      setAvatarPreview(URL.createObjectURL(file)); // Preview
       if (!['image/jpeg', 'image/png', 'image/jpg'].includes(file.type)) {
         setError('Only JPG/PNG images allowed.');
         return;
@@ -139,7 +140,7 @@ const ProfileEdit = () => {
       return;
     }
     setBannerUploading(true);
-    setBannerPreview(URL.createObjectURL(file));
+    setBannerPreview(URL.createObjectURL(file)); // Preview
     try {
       const formData = new FormData();
       formData.append('file', file);
@@ -169,7 +170,7 @@ const ProfileEdit = () => {
   const handleBannerDrop = async (acceptedFiles: File[]) => {
     if (acceptedFiles.length > 0) {
       const file = acceptedFiles[0];
-      setBannerPreview(URL.createObjectURL(file));
+      setBannerPreview(URL.createObjectURL(file)); // Preview
       // Simulate file input event
       const dt = new DataTransfer();
       dt.items.add(file);
@@ -206,15 +207,30 @@ const ProfileEdit = () => {
     setForm((prev: any) => ({ ...prev, socials: { ...prev.socials, [name]: value } }));
   };
 
+  // Enhanced validation for all required fields
+  const validateAll = () => {
+    const errs: any = {};
+    if (!form.name || !form.name.trim()) errs.name = 'Name is required.';
+    if (!form.title || !form.title.trim()) errs.title = 'Title is required.';
+    if (!form.skills || !form.skills.length) errs.skills = 'At least one skill is required.';
+    if (!form.address || !form.address.trim()) errs.address = 'Address is required.';
+    return errs;
+  };
+  const isFormValid = () => {
+    const errs = validateAll();
+    return Object.keys(errs).length === 0;
+  };
+
   // Submit
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
     setSubmitStatus('idle');
     setError('');
-    if (!form.title || !form.skills || form.skills.length === 0) {
+    const errs = validateAll();
+    setErrors(errs);
+    if (Object.keys(errs).length > 0) {
       setSubmitStatus('error');
-      setError('Title and at least one skill are required.');
       setSubmitting(false);
       return;
     }
@@ -232,7 +248,6 @@ const ProfileEdit = () => {
         setTimeout(() => { navigate('/profile'); }, 1000);
       } else {
         setSubmitStatus('error');
-        // Only set errors if res.errors exists
         if ('errors' in res && res.errors) setErrors(res.errors);
         setError(res.message || 'Update failed.');
         toast.error(res.message || 'Update failed.');
@@ -526,7 +541,7 @@ const ProfileEdit = () => {
           )}
           <button
             type="submit"
-            disabled={submitting}
+            disabled={submitting || !isFormValid()}
             className="w-full py-3 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-bold text-lg shadow-lg hover:from-cyan-400 hover:to-blue-500 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:ring-offset-2 disabled:opacity-60"
           >
             {submitting ? 'Saving...' : 'Save Changes'}
