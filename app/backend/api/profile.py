@@ -11,7 +11,7 @@ from models.profile import Profile, Experience, Education, db
 from flask_cors import CORS
 
 profile_bp = Blueprint('profile', __name__, url_prefix='/api')
-CORS(profile_bp, origins=["http://localhost:5173"], supports_credentials=True)
+CORS(profile_bp, origins=["http://localhost:5173", "http://localhost:5174"], supports_credentials=True)
 
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 MAX_IMAGE_SIZE_MB = 5
@@ -102,6 +102,7 @@ def update_profile():
         if not request.is_json:
             return jsonify(success=False, message='Request must be JSON.'), 422
         user_id = get_jwt_identity()
+        print('[PROFILE API] JWT identity:', user_id)
         if not user_id:
             print('[PROFILE API] JWT missing or invalid')
             return jsonify(success=False, message='JWT missing or invalid'), 401
@@ -110,6 +111,9 @@ def update_profile():
             return jsonify(success=False, message='User not found'), 404
         data = request.get_json() or {}
         print('Received profile update:', data)
+        print('Request headers:', dict(request.headers))
+        print('Request method:', request.method)
+        print('Request content type:', request.content_type)
         profile = Profile.query.filter_by(user_id=user.id).first()
         if not profile:
             profile = Profile(user_id=user.id)
@@ -284,7 +288,7 @@ def profile_options():
 @profile_bp.route('/profile/image', methods=['OPTIONS'])
 def profile_image_options():
     response = make_response()
-    response.headers['Access-Control-Allow-Origin'] = 'http://localhost:5173'
+    response.headers['Access-Control-Allow-Origin'] = 'http://localhost:5174'
     response.headers['Access-Control-Allow-Methods'] = 'POST,OPTIONS'
     response.headers['Access-Control-Allow-Headers'] = 'Content-Type,Authorization'
     response.headers['Access-Control-Allow-Credentials'] = 'true'

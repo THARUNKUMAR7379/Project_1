@@ -31,10 +31,17 @@ const ProfileEdit = () => {
   const [form, setForm] = useState<Profile>({
     ...defaultProfile,
     ...profile,
+    name: profile?.name || '',
+    title: profile?.title || '',
+    bio: profile?.bio || '',
+    location: profile?.location || '',
+    address: profile?.address || '',
+    avatar: profile?.avatar || '',
+    banner: profile?.banner || '',
     skills: profile?.skills || [],
     socials: { ...defaultProfile.socials, ...(profile?.socials || {}) },
-    banner: profile?.banner || '',
-    address: profile?.address || '',
+    experiences: profile?.experiences || [],
+    education: profile?.education || [],
   });
   const [errors, setErrors] = useState<any>({});
   const [touched, setTouched] = useState<any>({});
@@ -53,7 +60,21 @@ const ProfileEdit = () => {
 
   useEffect(() => {
     if (profile) {
-      setForm({ ...defaultProfile, ...profile, skills: profile.skills || [], socials: { ...defaultProfile.socials, ...profile.socials }, banner: profile.banner || '' });
+      setForm({
+        ...defaultProfile,
+        ...profile,
+        name: profile.name || '',
+        title: profile.title || '',
+        bio: profile.bio || '',
+        location: profile.location || '',
+        address: profile.address || '',
+        avatar: profile.avatar || '',
+        banner: profile.banner || '',
+        skills: profile.skills || [],
+        socials: { ...defaultProfile.socials, ...(profile.socials || {}) },
+        experiences: profile.experiences || [],
+        education: profile.education || [],
+      });
       setAvatarPreview(profile.avatar || null);
       setBanner(profile.banner || '');
       setBannerPreview(profile.banner || '');
@@ -245,10 +266,17 @@ const ProfileEdit = () => {
     try {
       const payload = {
         ...form,
+        name: form.name || '',
+        title: form.title || '',
+        bio: form.bio || '',
+        location: form.location || '',
+        address: form.address || '',
+        avatar: form.avatar || '',
+        banner: form.banner || '',
         skills: Array.isArray(form.skills) ? form.skills : (typeof form.skills === 'string' ? form.skills.split(',').map((s: string) => s.trim()).filter(Boolean) : []),
         socials: typeof form.socials === 'object' && form.socials !== null ? form.socials : {},
-        address: form.address,
-        title: form.title,
+        experiences: Array.isArray(form.experiences) ? form.experiences : [],
+        education: Array.isArray(form.education) ? form.education : [],
       };
       const res = await updateProfile(payload);
       if (res.success) {
@@ -269,6 +297,13 @@ const ProfileEdit = () => {
     } finally {
       setSubmitting(false);
     }
+  };
+
+  // Helper to get full backend URL for images
+  const backendUrl = "http://localhost:5000";
+  const getImageUrl = (url: string | null | undefined) => {
+    if (!url) return '';
+    return url.startsWith('http') ? url : backendUrl + url;
   };
 
   return (
@@ -292,7 +327,7 @@ const ProfileEdit = () => {
               title="Click or drag to upload"
             >
               {avatarPreview ? (
-                <img src={avatarPreview} alt="avatar preview" className="w-full h-full object-cover" />
+                <img src={getImageUrl(avatarPreview)} alt="avatar preview" className="w-full h-full object-cover" />
               ) : (
                 <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=User`} alt="avatar" className="w-full h-full object-cover" />
               )}
@@ -313,7 +348,7 @@ const ProfileEdit = () => {
           <div {...bannerDropzone.getRootProps()} className={`relative group mb-6 w-full h-40 rounded-xl overflow-hidden border-2 border-cyan-400/30 bg-gradient-to-tr from-cyan-900 to-blue-900 flex items-center justify-center cursor-pointer ${bannerDropzone.isDragActive ? 'ring-2 ring-cyan-400' : ''}`}>
             <input type="file" accept="image/*" ref={bannerInputRef} className="hidden" onChange={handleBannerChange} {...bannerDropzone.getInputProps()} />
             {bannerPreview ? (
-              <img src={bannerPreview} alt="Banner preview" className={`w-full h-40 object-cover transition-opacity duration-200 ${bannerUploading ? 'opacity-50' : ''}`} />
+              <img src={getImageUrl(bannerPreview)} alt="Banner preview" className={`w-full h-40 object-cover transition-opacity duration-200 ${bannerUploading ? 'opacity-50' : ''}`} />
             ) : (
               <div className="w-full h-40 flex items-center justify-center text-cyan-200">Click or drag to upload banner</div>
             )}
@@ -382,7 +417,7 @@ const ProfileEdit = () => {
             <input
               type="text"
               name="skills"
-              value={form.skills.join(', ')}
+              value={Array.isArray(form.skills) ? form.skills.join(', ') : ''}
               onChange={(e) => setForm((prev) => ({ ...prev, skills: e.target.value.split(',').map((s: string) => s.trim()).filter(Boolean) }))}
               onBlur={() => setTouched((prev: any) => ({ ...prev, skills: true }))}
               className={`w-full px-3 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-cyan-400 bg-black/60 text-white ${errors.skills && touched.skills ? 'border-pink-500' : 'border-white/20'}`}

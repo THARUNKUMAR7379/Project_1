@@ -9,7 +9,7 @@ from flask_cors import CORS
 auth_bp = Blueprint('auth', __name__, url_prefix='/auth')
 
 # Ensure CORS for this blueprint (if not already applied globally)
-CORS(auth_bp, origins=["http://localhost:3000", "http://localhost:5173", "http://localhost:5174"], supports_credentials=True)
+CORS(auth_bp, origins=["http://localhost:5173", "http://localhost:3000", "http://localhost:5174"], supports_credentials=True, allow_headers=["Content-Type", "Authorization"])
 
 @auth_bp.route('/signup', methods=['POST'])
 def signup():
@@ -47,8 +47,10 @@ def signup():
         print(f"Signup error: {e}")
         return jsonify({'success': False, 'message': 'Internal server error'}), 500
 
-@auth_bp.route('/login', methods=['POST'])
+@auth_bp.route('/login', methods=['POST', 'OPTIONS'])
 def login():
+    if request.method == 'OPTIONS':
+        return '', 200
     try:
         data = request.get_json()
         identifier = data.get('identifier') or data.get('username') or data.get('email')

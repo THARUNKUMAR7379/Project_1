@@ -2,10 +2,9 @@ import React, { useRef, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { profileApi } from './api';
-import { FaEdit, FaSignOutAlt, FaMapMarkerAlt, FaBriefcase, FaGraduationCap, FaStar, FaCalendarAlt, FaUpload } from 'react-icons/fa';
+import { FaEdit, FaSignOutAlt, FaMapMarkerAlt, FaBriefcase, FaGraduationCap, FaStar, FaCalendarAlt, FaUpload, FaLinkedin, FaGithub, FaEnvelope, FaPhone, FaGlobe } from 'react-icons/fa';
 import { useDropzone } from 'react-dropzone';
 import type { Profile } from '../../types';
-// @ts-expect-error: If 'react-hot-toast' types are missing, this is a runtime import only.
 import toast from 'react-hot-toast';
 
 const ProfileView: React.FC = () => {
@@ -86,6 +85,13 @@ const ProfileView: React.FC = () => {
   const getAvatarUrl = () => profile?.avatar || profileApi.getDefaultAvatar(profile?.name || user?.username || 'User');
   const getBannerUrl = () => bannerPreview || profile?.banner || '/default-banner.jpg';
   const formatDate = (dateString: string) => dateString ? new Date(dateString).toLocaleDateString('en-US', { year: 'numeric', month: 'short' }) : 'Present';
+  
+  // Helper to get full backend URL for images
+  const backendUrl = "http://localhost:5000";
+  const getImageUrl = (url: string | null | undefined) => {
+    if (!url) return '';
+    return url.startsWith('http') ? url : backendUrl + url;
+  };
 
   if (!user) return <div className="min-h-screen flex items-center justify-center text-white">Please log in.</div>;
   if (loading) return <div className="min-h-screen flex items-center justify-center text-white">Loading...</div>;
@@ -121,17 +127,58 @@ const ProfileView: React.FC = () => {
       <div className="max-w-6xl mx-auto px-4 pt-24 pb-8">
         <div className="flex flex-col md:flex-row md:items-center md:gap-8">
           <div>
-            <img src={getAvatarUrl()} alt="Avatar" className="w-32 h-32 rounded-full border-4 border-gray-900 object-cover bg-gray-700 -mt-24 mb-4" />
+            <img src={getImageUrl(profile?.avatar) || getAvatarUrl()} alt="Avatar" className="w-32 h-32 rounded-full border-4 border-gray-900 object-cover bg-gray-700 -mt-24 mb-4" />
             <h1 className="text-3xl font-bold">{profile?.name || user.username}</h1>
             <p className="text-xl text-gray-300">{profile?.title || 'Professional'}</p>
             {profile?.location && <div className="flex items-center text-gray-400"><FaMapMarkerAlt className="mr-2" />{profile.location}</div>}
+            {profile?.address && <div className="flex items-center text-gray-400 mt-1"><FaGlobe className="mr-2" />{profile.address}</div>}
           </div>
-              </div>
+        </div>
         {/* About */}
         <div className="mt-8 bg-gray-800 rounded-xl p-6 border border-gray-700">
           <h2 className="text-xl font-semibold mb-4 flex items-center gap-2"><FaStar className="text-yellow-500" />About</h2>
           <p className="text-gray-300">{profile?.bio || 'No bio available.'}</p>
-                </div>
+        </div>
+        
+        {/* Contact & Social Links */}
+        <div className="mt-8 bg-gray-800 rounded-xl p-6 border border-gray-700">
+          <h2 className="text-xl font-semibold mb-4">Contact & Social</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {profile?.socials?.linkedin && (
+              <a href={profile.socials.linkedin} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-blue-400 hover:text-blue-300 transition">
+                <FaLinkedin className="text-xl" />
+                <span>LinkedIn</span>
+              </a>
+            )}
+            {profile?.socials?.github && (
+              <a href={profile.socials.github} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-gray-400 hover:text-gray-300 transition">
+                <FaGithub className="text-xl" />
+                <span>GitHub</span>
+              </a>
+            )}
+            {profile?.socials?.email && (
+              <a href={`mailto:${profile.socials.email}`} className="flex items-center gap-2 text-green-400 hover:text-green-300 transition">
+                <FaEnvelope className="text-xl" />
+                <span>{profile.socials.email}</span>
+              </a>
+            )}
+            {profile?.socials?.phone && (
+              <a href={`tel:${profile.socials.phone}`} className="flex items-center gap-2 text-purple-400 hover:text-purple-300 transition">
+                <FaPhone className="text-xl" />
+                <span>{profile.socials.phone}</span>
+              </a>
+            )}
+            {profile?.socials?.website && (
+              <a href={profile.socials.website} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-cyan-400 hover:text-cyan-300 transition">
+                <FaGlobe className="text-xl" />
+                <span>Website</span>
+              </a>
+            )}
+            {(!profile?.socials?.linkedin && !profile?.socials?.github && !profile?.socials?.email && !profile?.socials?.phone && !profile?.socials?.website) && (
+              <p className="text-gray-400 col-span-2">No contact information added yet.</p>
+            )}
+          </div>
+        </div>
         {/* Experience */}
         <div className="mt-8 bg-gray-800 rounded-xl p-6 border border-gray-700">
           <h2 className="text-xl font-semibold mb-4 flex items-center gap-2"><FaBriefcase className="text-blue-500" />Experience</h2>

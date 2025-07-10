@@ -82,3 +82,8 @@ def create_post():
         'media_type': post.media_type,
         'created_at': post.created_at.isoformat()
     }), 201 
+
+@posts_bp.route('/posts', methods=['GET'])
+def get_posts():
+    # Return a dummy or real list of posts for now
+    return jsonify(success=True, posts=[]), 200 

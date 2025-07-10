@@ -43,6 +43,8 @@ export interface Post {
   id: number;
   user_id: number;
   content: string;
+  media_url?: string;
+  media_type?: string;
   created_at: string;
   likes: number;
   comments: Comment[];

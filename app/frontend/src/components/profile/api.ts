@@ -49,8 +49,13 @@ export const profileApi = {
         alert('You are not logged in. Please log in again.');
         throw new Error('No authentication token found');
       }
-      // Remove empty fields from payload
-      const cleaned = Object.fromEntries(Object.entries(profileData).filter(([k, v]) => v !== undefined && v !== null && v !== ''));
+      // Remove empty fields from payload but keep required fields
+      const cleaned = Object.fromEntries(Object.entries(profileData).filter(([k, v]) => {
+        if (k === 'name' || k === 'title' || k === 'bio' || k === 'location' || k === 'address' || k === 'avatar' || k === 'banner') {
+          return v !== undefined && v !== null;
+        }
+        return v !== undefined && v !== null && v !== '';
+      }));
       // Clean socials
       if (cleaned.socials) {
         cleaned.socials = Object.fromEntries(Object.entries(cleaned.socials).filter(([_, v]) => typeof v === 'string' && v.trim() !== ''));

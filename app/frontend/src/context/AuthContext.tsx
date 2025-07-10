@@ -13,11 +13,12 @@ interface Profile {
   id: number;
   user_id: number;
   avatar: string;
+  banner: string;
   name: string;
   title: string;
   bio: string;
   location: string;
-  contact: string;
+  address: string;
   skills: string[];
   socials: Record<string, string>;
   experiences: any[];
