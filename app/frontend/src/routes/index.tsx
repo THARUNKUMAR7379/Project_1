@@ -5,7 +5,7 @@ import ForgotPassword from '../components/auth/ForgotPassword';
 import ProfileView from '../components/profile/ProfileView';
 import ProfileEdit from '../components/profile/ProfileEdit';
 import PostCreate from '../components/posts/PostCreate';
-import PostList from '../components/posts/PostList';
+import PostsPage from '../components/posts/PostsPage';
 import Feed from '../components/feed/Feed';
 import JobList from '../components/job-board/JobList';
 import MessageList from '../components/messaging/MessageList';
@@ -42,7 +42,7 @@ export const router = createBrowserRouter([
   },
   {
     path: '/posts',
-    element: <PostList />,
+    element: <PostsPage />,
   },
   {
     path: '/jobs',
