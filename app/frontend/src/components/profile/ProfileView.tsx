@@ -10,9 +10,9 @@ import toast from 'react-hot-toast';
 const ProfileView: React.FC = () => {
   const { user, profile, logout, profileLoading, updateProfile, refreshProfile } = useAuth();
   const navigate = useNavigate();
-  const [bannerUploading, setBannerUploading] = useState(false);
-  const [bannerPreview, setBannerPreview] = useState(profile?.banner || '');
-  const bannerInputRef = useRef<HTMLInputElement>(null);
+  const [avatarUploading, setAvatarUploading] = useState(false);
+  const [avatarPreview, setAvatarPreview] = useState(profile?.avatar || '');
+  const avatarInputRef = useRef<HTMLInputElement>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -29,8 +29,8 @@ const ProfileView: React.FC = () => {
     fetchProfile();
   }, []);
 
-  // Banner upload logic
-  const handleBannerChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Avatar upload logic
+  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     if (!['image/jpeg', 'image/png', 'image/jpg'].includes(file.type)) {
@@ -41,11 +41,11 @@ const ProfileView: React.FC = () => {
       toast.error('Max file size is 5MB.');
       return;
     }
-    setBannerUploading(true);
+    setAvatarUploading(true);
     try {
       const formData = new FormData();
       formData.append('file', file);
-      formData.append('type', 'banner');
+      formData.append('type', 'avatar');
       const response = await fetch('http://localhost:5000/api/profile/image', {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` },
@@ -53,21 +53,21 @@ const ProfileView: React.FC = () => {
       });
       const data = await response.json();
       if (data.success && data.url) {
-        setBannerPreview(data.url);
-        await updateProfile({ banner: data.url });
+        setAvatarPreview(data.url);
+        await updateProfile({ avatar: data.url });
         await refreshProfile();
-        toast.success('Banner updated!');
+        toast.success('Avatar updated!');
         } else {
-        toast.error(data.message || 'Banner upload failed.');
+        toast.error(data.message || 'Avatar upload failed.');
       }
     } catch (err) {
-      toast.error('Banner upload failed.');
+      toast.error('Avatar upload failed.');
     } finally {
-      setBannerUploading(false);
+      setAvatarUploading(false);
     }
   };
 
-  const onBannerDrop = async (acceptedFiles: File[]) => {
+  const onAvatarDrop = async (acceptedFiles: File[]) => {
     if (acceptedFiles.length > 0) {
       const file = acceptedFiles[0];
       // Create a DataTransfer to simulate a file input event
@@ -77,13 +77,12 @@ const ProfileView: React.FC = () => {
       input.type = 'file';
       input.files = dt.files;
       const event = { target: input } as unknown as React.ChangeEvent<HTMLInputElement>;
-      await handleBannerChange(event);
+      await handleAvatarChange(event);
     }
   };
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop: onBannerDrop, accept: { 'image/jpeg': [], 'image/png': [] } });
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop: onAvatarDrop, accept: { 'image/jpeg': [], 'image/png': [] } });
 
   const getAvatarUrl = () => profile?.avatar || profileApi.getDefaultAvatar(profile?.name || user?.username || 'User');
-  const getBannerUrl = () => bannerPreview || profile?.banner || '/default-banner.jpg';
   const formatDate = (dateString: string) => dateString ? new Date(dateString).toLocaleDateString('en-US', { year: 'numeric', month: 'short' }) : 'Present';
   
   // Helper to get full backend URL for images
@@ -114,12 +113,12 @@ const ProfileView: React.FC = () => {
                 </div>
       {/* Banner with upload */}
       <div className="relative group" {...getRootProps()}>
-        <img src={getBannerUrl()} alt="Banner" className="w-full h-48 object-cover transition-opacity duration-200" style={{ opacity: bannerUploading ? 0.5 : 1 }} />
-        <input type="file" accept="image/*" ref={bannerInputRef} className="hidden" onChange={handleBannerChange} {...getInputProps()} />
+        <img src={getAvatarUrl()} alt="Avatar" className="w-full h-48 object-cover transition-opacity duration-200" style={{ opacity: avatarUploading ? 0.5 : 1 }} />
+        <input type="file" accept="image/*" ref={avatarInputRef} className="hidden" onChange={handleAvatarChange} {...getInputProps()} />
         <div className="absolute inset-0 flex items-center justify-center bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
           <div className="flex flex-col items-center">
             <FaUpload className="text-2xl text-cyan-300 mb-1" />
-            <span className="text-cyan-200 text-sm">{bannerUploading ? 'Uploading...' : 'Change Banner'}</span>
+            <span className="text-cyan-200 text-sm">{avatarUploading ? 'Uploading...' : 'Change Avatar'}</span>
                   </div>
                   </div>
                 </div>

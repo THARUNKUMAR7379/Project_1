@@ -6,7 +6,7 @@ from extensions import db
 import datetime
 from flask_cors import CORS
 
-auth_bp = Blueprint('auth', __name__, url_prefix='/auth')
+auth_bp = Blueprint('auth', __name__, url_prefix='/api/auth')
 
 # Ensure CORS for this blueprint (if not already applied globally)
 CORS(auth_bp, origins=["http://localhost:5173", "http://localhost:3000", "http://localhost:5174"], supports_credentials=True, allow_headers=["Content-Type", "Authorization"])

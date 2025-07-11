@@ -33,11 +33,15 @@ def signup():
 @limiter.limit("10 per minute")
 def login():
     data = request.get_json()
-    username_or_email = data.get('username', '').strip() or data.get('email', '').strip()
+    # Handle both 'identifier' (from frontend) and 'username'/'email' (for backward compatibility)
+    identifier = data.get('identifier', '').strip() or data.get('username', '').strip() or data.get('email', '').strip()
     password = data.get('password', '')
 
+    if not identifier or not password:
+        return jsonify({"message": "Username/email and password are required"}), 400
+
     user = User.query.filter(
-        (User.username == username_or_email) | (User.email == username_or_email)
+        (User.username == identifier) | (User.email == identifier)
     ).first()
 
     if not user or not user.check_password(password):

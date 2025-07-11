@@ -85,5 +85,22 @@ def create_post():
 
 @posts_bp.route('/posts', methods=['GET'])
 def get_posts():
-    # Return a dummy or real list of posts for now
-    return jsonify(success=True, posts=[]), 200 
+    try:
+        print('[GET /api/posts] Fetching posts...')
+        posts = Post.query.order_by(Post.created_at.desc()).all()
+        posts_data = [
+            {
+                'id': post.id,
+                'user_id': post.user_id,
+                'content': post.content,
+                'media_url': post.media_url,
+                'media_type': post.media_type,
+                'created_at': post.created_at.isoformat() if post.created_at else None
+            }
+            for post in posts
+        ]
+        print(f'[GET /api/posts] Returned {len(posts_data)} posts')
+        return jsonify(success=True, posts=posts_data), 200
+    except Exception as e:
+        print(f'[GET /api/posts] Error: {e}')
+        return jsonify(success=False, message='Failed to fetch posts.'), 500 

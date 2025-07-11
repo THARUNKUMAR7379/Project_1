@@ -3,6 +3,7 @@ import { postsApi } from './api';
 import type { Post } from '../../types';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
+import { useNavigate } from 'react-router-dom';
 
 const MAX_MEDIA_SIZE_MB = 10;
 const ALLOWED_IMAGE_TYPES = ['image/png', 'image/jpeg', 'image/jpg'];
@@ -24,6 +25,7 @@ const PostCreate: React.FC<PostCreateProps> = ({ onPostCreated }) => {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const navigate = useNavigate();
 
   const handleContentChange = (value: string) => {
     setContent(value);
@@ -74,6 +76,7 @@ const PostCreate: React.FC<PostCreateProps> = ({ onPostCreated }) => {
         setContent('');
         handleRemoveMedia();
         if (onPostCreated) onPostCreated();
+        setTimeout(() => navigate('/posts'), 1000); // Redirect after short delay
       } else {
         setError(res.message || 'Failed to create post.');
       }
