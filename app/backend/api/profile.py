@@ -43,14 +43,12 @@ def get_profile():
         user = User.query.get(user_id)
         if not user:
             return jsonify(success=False, message='User not found'), 404
-        
         profile = Profile.query.filter_by(user_id=user.id).first()
         if not profile:
             # Auto-create empty profile
             profile = Profile(user_id=user.id)
             db.session.add(profile)
             db.session.commit()
-        
         # Build avatar URL
         avatar_url = None
         if profile.avatar:
@@ -58,7 +56,6 @@ def get_profile():
                 avatar_url = profile.avatar
             else:
                 avatar_url = f"http://localhost:5000{profile.avatar}"
-        
         return jsonify(success=True, profile={
             'id': profile.id,
             'user_id': profile.user_id,
@@ -90,7 +87,7 @@ def get_profile():
                     'end_date': edu.end_date.isoformat() if edu.end_date else None
                 } for edu in profile.education
             ]
-        })
+        }), 200
     except Exception as e:
         print(f"Error getting profile: {e}")
         return jsonify(success=False, message='Failed to get profile'), 500

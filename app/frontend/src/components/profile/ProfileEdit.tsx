@@ -52,11 +52,10 @@ const ProfileEdit = () => {
   const [error, setError] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // 1. Add state for banner image and preview
-  const [banner, setBanner] = useState<string>(profile?.banner || '');
-  const [bannerPreview, setBannerPreview] = useState<string>(profile?.banner || '');
-  const [bannerUploading, setBannerUploading] = useState(false);
-  const bannerInputRef = useRef<HTMLInputElement>(null);
+  // 1. Remove 'banner' and 'bannerPreview' state and all related handlers (handleBannerChange, handleBannerDrop, etc.)
+  // 2. Remove 'banner' from defaultProfile and form state.
+  // 3. Remove all banner upload UI and references in the JSX.
+  // 4. Ensure handleSubmit and updateProfile only send valid fields (no banner).
 
   useEffect(() => {
     if (profile) {
@@ -76,8 +75,6 @@ const ProfileEdit = () => {
         education: profile.education || [],
       });
       setAvatarPreview(profile.avatar || null);
-      setBanner(profile.banner || '');
-      setBannerPreview(profile.banner || '');
     }
   }, [profile]);
 
@@ -156,62 +153,6 @@ const ProfileEdit = () => {
   };
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop, accept: { 'image/jpeg': [], 'image/png': [] } });
 
-  // 2. Banner upload handler (click or drop)
-  const handleBannerChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    if (!['image/jpeg', 'image/png', 'image/jpg'].includes(file.type)) {
-      toast.error('Only JPG/PNG images allowed.');
-      return;
-    }
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error('Max file size is 5MB.');
-      return;
-    }
-    setBannerUploading(true);
-    setBannerPreview(URL.createObjectURL(file)); // Preview
-    try {
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('type', 'banner');
-      const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:5000/api/profile/image', {
-        method: 'POST',
-        headers: { 'Authorization': `Bearer ${token}` },
-        body: formData,
-      });
-      const data = await response.json();
-      if (data.success && data.url) {
-        setBanner(data.url);
-        setBannerPreview(data.url);
-        setForm((prev: Profile) => ({ ...prev, banner: data.url }));
-        toast.success('Banner updated!');
-      } else {
-        toast.error(data.message || 'Banner upload failed.');
-      }
-    } catch (err) {
-      toast.error('Banner upload failed.');
-    } finally {
-      setBannerUploading(false);
-    }
-  };
-
-  const handleBannerDrop = async (acceptedFiles: File[]) => {
-    if (acceptedFiles.length > 0) {
-      const file = acceptedFiles[0];
-      setBannerPreview(URL.createObjectURL(file)); // Preview
-      // Simulate file input event
-      const dt = new DataTransfer();
-      dt.items.add(file);
-      const input = document.createElement('input');
-      input.type = 'file';
-      input.files = dt.files;
-      const event = { target: input } as unknown as React.ChangeEvent<HTMLInputElement>;
-      await handleBannerChange(event);
-    }
-  };
-  const bannerDropzone = useDropzone({ onDrop: handleBannerDrop, accept: { 'image/jpeg': [], 'image/png': [] } });
-
   // Dynamic fields for experience/education
   const addExperience = () => setForm((prev: Profile) => ({ ...prev, experiences: [...(prev.experiences || []), { title: '', company: '', start_date: '', end_date: '', description: '' }] }));
   const removeExperience = (idx: number) => setForm((prev: Profile) => ({ ...prev, experiences: prev.experiences.filter((_: any, i: number) => i !== idx) }));
@@ -272,7 +213,6 @@ const ProfileEdit = () => {
         location: form.location || '',
         address: form.address || '',
         avatar: form.avatar || '',
-        banner: form.banner || '',
         skills: Array.isArray(form.skills) ? form.skills : (typeof form.skills === 'string' ? form.skills.split(',').map((s: string) => s.trim()).filter(Boolean) : []),
         socials: typeof form.socials === 'object' && form.socials !== null ? form.socials : {},
         experiences: Array.isArray(form.experiences) ? form.experiences : [],
@@ -342,21 +282,6 @@ const ProfileEdit = () => {
               {uploadProgress > 0 && uploadProgress < 100 && (
                 <div className="absolute top-0 left-0 w-full h-full bg-black/60 flex items-center justify-center text-cyan-400 text-xs">Uploading... {uploadProgress}%</div>
               )}
-            </div>
-          </div>
-          {/* Banner Upload */}
-          <div {...bannerDropzone.getRootProps()} className={`relative group mb-6 w-full h-40 rounded-xl overflow-hidden border-2 border-cyan-400/30 bg-gradient-to-tr from-cyan-900 to-blue-900 flex items-center justify-center cursor-pointer ${bannerDropzone.isDragActive ? 'ring-2 ring-cyan-400' : ''}`}>
-            <input type="file" accept="image/*" ref={bannerInputRef} className="hidden" onChange={handleBannerChange} {...bannerDropzone.getInputProps()} />
-            {bannerPreview ? (
-              <img src={getImageUrl(bannerPreview)} alt="Banner preview" className={`w-full h-40 object-cover transition-opacity duration-200 ${bannerUploading ? 'opacity-50' : ''}`} />
-            ) : (
-              <div className="w-full h-40 flex items-center justify-center text-cyan-200">Click or drag to upload banner</div>
-            )}
-            <div className="absolute inset-0 flex items-center justify-center bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
-              <div className="flex flex-col items-center">
-                <FaUpload className="text-2xl text-cyan-300 mb-1" />
-                <span className="text-cyan-200 text-sm">{bannerUploading ? 'Uploading...' : 'Change Banner'}</span>
-              </div>
             </div>
           </div>
           {/* Full Name, Title, Location, Bio */}

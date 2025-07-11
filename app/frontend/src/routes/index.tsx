@@ -1,4 +1,4 @@
-import { createBrowserRouter } from 'react-router-dom';
+import { createBrowserRouter, Navigate } from 'react-router-dom';
 import Login from '../components/auth/Login';
 import Signup from '../components/auth/Signup';
 import ForgotPassword from '../components/auth/ForgotPassword';
@@ -10,11 +10,17 @@ import Feed from '../components/feed/Feed';
 import JobList from '../components/job-board/JobList';
 import MessageList from '../components/messaging/MessageList';
 import NotFound from '../components/NotFound';
+import MainLayout from '../components/navigation/MainLayout';
+import HomePage from '../components/home/HomePage';
 
 export const router = createBrowserRouter([
   {
     path: '/',
-    element: <Login />,
+    element: <HomePage />,
+  },
+  {
+    path: '/home',
+    element: <HomePage />,
   },
   {
     path: '/login',
@@ -29,31 +35,16 @@ export const router = createBrowserRouter([
     element: <ForgotPassword />,
   },
   {
-    path: '/profile',
-    element: <ProfileView />,
-  },
-  {
-    path: '/edit-profile',
-    element: <ProfileEdit />,
-  },
-  {
-    path: '/posts/create',
-    element: <PostCreate />,
-  },
-  {
-    path: '/posts',
-    element: <PostsPage />,
-  },
-  {
-    path: '/jobs',
-    element: <JobList />,
-  },
-  {
-    path: '/messages',
-    element: <MessageList />,
-  },
-  {
-    path: '*',
-    element: <NotFound />,
+    element: <MainLayout />, // All main app pages use this layout
+    children: [
+      { path: '/profile', element: <ProfileView /> },
+      { path: '/edit-profile', element: <ProfileEdit /> },
+      { path: '/posts/create', element: <PostCreate /> },
+      { path: '/posts', element: <PostsPage /> },
+      { path: '/feed', element: <PostsPage /> },
+      { path: '/jobs', element: <JobList /> },
+      { path: '/messages', element: <MessageList /> },
+      { path: '*', element: <NotFound /> },
+    ],
   },
 ]); 

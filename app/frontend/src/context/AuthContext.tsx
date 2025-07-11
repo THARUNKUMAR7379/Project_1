@@ -13,7 +13,6 @@ interface Profile {
   id: number;
   user_id: number;
   avatar: string;
-  banner: string;
   name: string;
   title: string;
   bio: string;

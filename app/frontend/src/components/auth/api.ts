@@ -12,8 +12,8 @@ export const authApi = {
     }, 10000); // 10 seconds timeout
     
     try {
-      console.log('[authApi] about to fetch', `${API_URL}/auth/login`);
-      const response = await fetch(`${API_URL}/auth/login`, {
+      console.log('[authApi] about to fetch', `${API_URL}/api/auth/login`);
+      const response = await fetch(`${API_URL}/api/auth/login`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
@@ -69,7 +69,7 @@ export const authApi = {
     }, 10000);
     
     try {
-      const response = await fetch(`${API_URL}/auth/signup`, {
+      const response = await fetch(`${API_URL}/api/auth/signup`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
@@ -117,7 +117,7 @@ export const authApi = {
     }, 10000);
     
     try {
-      const response = await fetch(`${API_URL}/auth/profile`, {
+      const response = await fetch(`${API_URL}/api/auth/profile`, {
         method: 'GET',
         headers: { 
           'Content-Type': 'application/json',
@@ -161,7 +161,7 @@ export const authApi = {
     }, 10000);
     
     try {
-      const response = await fetch(`${API_URL}/auth/forgot-password`, {
+      const response = await fetch(`${API_URL}/api/auth/forgot-password`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',

@@ -70,7 +70,7 @@ const PostList: React.FC<PostListProps> = ({ refreshKey }) => {
             />
             {post.media_url && post.media_type === 'image' && (
               <img
-                src={post.media_url}
+                src={`http://localhost:5000${post.media_url}`}
                 alt="Post media"
                 className="max-h-64 rounded-xl border mb-3"
                 style={{ maxWidth: '100%' }}
@@ -78,7 +78,7 @@ const PostList: React.FC<PostListProps> = ({ refreshKey }) => {
             )}
             {post.media_url && post.media_type === 'video' && (
               <video
-                src={post.media_url}
+                src={`http://localhost:5000${post.media_url}`}
                 controls
                 className="max-h-64 rounded-xl border mb-3"
                 style={{ maxWidth: '100%' }}

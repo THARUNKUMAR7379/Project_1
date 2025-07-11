@@ -1,9 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { useAuthContext } from '../../context/AuthContext';
+import { useAuth } from '../../context/AuthContext';
 import { FaChevronDown, FaSignOutAlt } from 'react-icons/fa';
+import { Link, useLocation } from 'react-router-dom';
+import { FaHome, FaPlus, FaEnvelope, FaUser, FaStream } from 'react-icons/fa';
 
 const Navbar: React.FC = () => {
-  const { user, logout } = useAuthContext();
+  const { user, profile, logout } = useAuth(); // useAuth always returns AuthContextType, never undefined
   const [open, setOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -27,7 +29,7 @@ const Navbar: React.FC = () => {
             onClick={() => setOpen((v) => !v)}
           >
             <img
-              src={user?.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.username || 'User'}`}
+              src={profile?.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.username || 'User'}`}
               alt="avatar"
               className="w-8 h-8 rounded-full object-cover border-2 border-cyan-400/40 shadow"
             />
@@ -54,4 +56,17 @@ const Navbar: React.FC = () => {
   );
 };
 
-export default Navbar; 
+export default Navbar;
+
+export const BottomNav: React.FC = () => {
+  const location = useLocation();
+  return (
+    <nav className="fixed bottom-0 left-0 right-0 bg-gray-900 text-white flex justify-around py-3 z-50 border-t border-gray-800">
+      <Link to="/" className={location.pathname === "/" ? "text-cyan-400" : ""}><FaHome size={24} /></Link>
+      <Link to="/feed" className={location.pathname === "/feed" ? "text-cyan-400" : ""}><FaStream size={24} /></Link>
+      <Link to="/posts/create" className={location.pathname === "/posts/create" ? "text-cyan-400" : ""}><FaPlus size={24} /></Link>
+      <Link to="/messages" className={location.pathname === "/messages" ? "text-cyan-400" : ""}><FaEnvelope size={24} /></Link>
+      <Link to="/profile" className={location.pathname === "/profile" ? "text-cyan-400" : ""}><FaUser size={24} /></Link>
+    </nav>
+  );
+} 
