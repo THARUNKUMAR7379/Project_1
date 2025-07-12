@@ -45,7 +45,14 @@ export interface Post {
   content: string;
   media_url?: string;
   media_type?: string;
+  category?: string;
+  tags?: string[];
+  visibility?: string;
+  likes_count?: number;
+  views_count?: number;
+  comments_count?: number;
   created_at: string;
+  updated_at?: string;
   likes: number;
   comments: Comment[];
 }

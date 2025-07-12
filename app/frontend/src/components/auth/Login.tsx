@@ -44,7 +44,6 @@ const Login: React.FC = () => {
       try {
         const result = await login(form.identifier, form.password);
         if (result.success) {
-          // Navigate to profile
           navigate('/profile');
         } else {
           setErrors({ api: result.message || 'Invalid credentials. Please try again.' });

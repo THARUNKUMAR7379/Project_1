@@ -12,6 +12,8 @@ import MessageList from '../components/messaging/MessageList';
 import NotFound from '../components/NotFound';
 import MainLayout from '../components/navigation/MainLayout';
 import HomePage from '../components/home/HomePage';
+import ProtectedRoute from '../components/shared/ProtectedRoute';
+import PublicRoute from '../components/shared/PublicRoute';
 
 export const router = createBrowserRouter([
   {
@@ -24,18 +26,34 @@ export const router = createBrowserRouter([
   },
   {
     path: '/login',
-    element: <Login />,
+    element: (
+      <PublicRoute>
+        <Login />
+      </PublicRoute>
+    ),
   },
   {
     path: '/signup',
-    element: <Signup />,
+    element: (
+      <PublicRoute>
+        <Signup />
+      </PublicRoute>
+    ),
   },
   {
     path: '/forgot-password',
-    element: <ForgotPassword />,
+    element: (
+      <PublicRoute>
+        <ForgotPassword />
+      </PublicRoute>
+    ),
   },
   {
-    element: <MainLayout />, // All main app pages use this layout
+    element: (
+      <ProtectedRoute>
+        <MainLayout />
+      </ProtectedRoute>
+    ), // All main app pages use this layout
     children: [
       { path: '/profile', element: <ProfileView /> },
       { path: '/edit-profile', element: <ProfileEdit /> },
@@ -47,4 +65,8 @@ export const router = createBrowserRouter([
       { path: '*', element: <NotFound /> },
     ],
   },
-]); 
+], {
+  future: {
+    v7_startTransition: true,
+  } as any,
+}); 

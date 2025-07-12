@@ -2,12 +2,10 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { profileApi } from './api';
-import { FaEnvelope, FaPhone, FaUserEdit, FaUpload, FaPlus, FaTrash, FaLinkedin, FaGithub } from 'react-icons/fa';
+import { FaUserEdit, FaUpload } from 'react-icons/fa';
 import { useDropzone } from 'react-dropzone';
 import toast from 'react-hot-toast';
 import type { Profile } from '../../types';
-
-const validateEmail = (email: string) => /\S+@\S+\.\S+/.test(email);
 
 const defaultProfile: Profile = {
   id: 0,
@@ -26,7 +24,7 @@ const defaultProfile: Profile = {
 };
 
 const ProfileEdit = () => {
-  const { profile, updateProfile, refreshProfile } = useAuth();
+  const { profile, updateProfile, refreshProfile, token } = useAuth();
   const navigate = useNavigate();
   const [form, setForm] = useState<Profile>({
     ...defaultProfile,
@@ -107,7 +105,7 @@ const ProfileEdit = () => {
       }
       setUploadProgress(10);
       try {
-        const res = await profileApi.uploadAvatar(file);
+        const res = await profileApi.uploadAvatar(file, token!);
         if (res.success && res.url) {
           setAvatarPreview(res.url);
           setForm((prev: Profile) => ({ ...prev, avatar: res.url }));
@@ -137,7 +135,7 @@ const ProfileEdit = () => {
     }
     setUploadProgress(10);
     try {
-      const res = await profileApi.uploadAvatar(file);
+      const res = await profileApi.uploadAvatar(file, token!);
       if (res.success && res.url) {
         setAvatarPreview(res.url);
         setForm((prev: Profile) => ({ ...prev, avatar: res.url }));

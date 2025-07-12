@@ -65,7 +65,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     
     setProfileLoading(true);
     try {
-      const response = await profileApi.getProfile();
+      const response = await profileApi.getProfile(token);
       if (response.success && response.profile) {
         setProfile(response.profile);
         console.log('[AuthContext] Profile loaded:', response.profile);
@@ -191,7 +191,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setProfileLoading(true);
     
     try {
-      const response = await profileApi.updateProfile(profileData);
+      const response = await profileApi.updateProfile(profileData, token!);
       console.log('[AuthContext] Profile update response:', response);
       
       if (response.success && response.profile) {

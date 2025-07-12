@@ -1,11 +1,11 @@
 import React from 'react';
 import { Outlet } from 'react-router-dom';
-import BottomNav from './Navbar';
+import Navbar from './Navbar';
 
 const MainLayout: React.FC = () => (
   <>
+    <Navbar />
     <Outlet />
-    <BottomNav />
   </>
 );
 

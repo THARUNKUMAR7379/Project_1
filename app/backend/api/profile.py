@@ -6,9 +6,10 @@ import os
 import io
 import uuid
 from datetime import datetime
-from models.user import User
-from models.profile import Profile, Experience, Education, db
+from app.backend.models.user import User
+from app.backend.models.profile import Profile, Experience, Education
 from flask_cors import CORS
+from app.backend.extensions import db
 
 profile_bp = Blueprint('profile', __name__, url_prefix='/api')
 CORS(profile_bp, origins=["http://localhost:5173", "http://localhost:5174"], supports_credentials=True)
@@ -224,10 +225,11 @@ def upload_avatar():
             profile = Profile(user_id=user.id)
             db.session.add(profile)
             db.session.commit()
-        if 'file' not in request.files:
-            print('[UPLOAD] No file part in request')
-            return jsonify(success=False, message='No file part'), 422
-        file = request.files['file']
+        # Accept both 'file' and 'banner' as possible keys
+        file = request.files.get('file') or request.files.get('banner')
+        if not file:
+            print('[UPLOAD] No file or banner part in request')
+            return jsonify(success=False, message='No file or banner part'), 422
         if file.filename == '':
             print('[UPLOAD] No selected file')
             return jsonify(success=False, message='No selected file'), 400

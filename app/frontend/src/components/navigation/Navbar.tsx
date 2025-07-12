@@ -1,72 +1,46 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React from 'react';
+import { NavLink } from 'react-router-dom';
+import { UserIcon, HomeIcon, PencilSquareIcon } from '@heroicons/react/24/outline';
+import { FaSignOutAlt } from 'react-icons/fa';
 import { useAuth } from '../../context/AuthContext';
-import { FaChevronDown, FaSignOutAlt } from 'react-icons/fa';
-import { Link, useLocation } from 'react-router-dom';
-import { FaHome, FaPlus, FaEnvelope, FaUser, FaStream } from 'react-icons/fa';
+
+const navItems = [
+  { to: '/profile', label: 'Profile', icon: UserIcon },
+  { to: '/feed', label: 'Feed', icon: HomeIcon },
+  { to: '/posts/create', label: 'Post', icon: PencilSquareIcon },
+  { to: '/connections', label: 'Connections', icon: UserIcon },
+];
 
 const Navbar: React.FC = () => {
-  const { user, profile, logout } = useAuth(); // useAuth always returns AuthContextType, never undefined
-  const [open, setOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const handleClick = (e: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
-        setOpen(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClick);
-    return () => document.removeEventListener('mousedown', handleClick);
-  }, []);
-
+  const { logout } = useAuth();
   return (
-    <header className="w-full bg-white/10 backdrop-blur-md shadow-lg border-b border-white/10 sticky top-0 z-50">
-      <div className="max-w-5xl mx-auto flex items-center justify-between px-6 py-3">
-        <div className="text-2xl font-bold text-cyan-400 tracking-tight drop-shadow-lg">ProNet</div>
-        <div className="relative" ref={dropdownRef}>
-          <button
-            className="flex items-center gap-2 px-3 py-2 rounded-full bg-gradient-to-r from-cyan-500/20 to-blue-500/20 border border-white/20 shadow-md hover:shadow-xl transition-all duration-200 focus:outline-none"
-            onClick={() => setOpen((v) => !v)}
+    <nav className="w-full bg-gray-950 border-b border-gray-800 shadow flex items-center px-6 h-16 z-50">
+      {/* Logo or App Name */}
+      <div className="text-blue-500 font-bold text-xl tracking-tight select-none mr-8">Prok</div>
+      {/* Navigation Links */}
+      <div className="flex gap-6">
+        {navItems.map(({ to, label, icon: Icon }) => (
+          <NavLink
+            key={to}
+            to={to}
+            className={({ isActive }) =>
+              `flex items-center gap-2 px-3 py-2 rounded-lg font-medium transition-all hover:bg-gray-800 hover:text-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500 ${isActive ? 'bg-gray-800 text-blue-400' : 'text-gray-200'}`
+            }
           >
-            <img
-              src={profile?.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.username || 'User'}`}
-              alt="avatar"
-              className="w-8 h-8 rounded-full object-cover border-2 border-cyan-400/40 shadow"
-            />
-            <span className="text-white font-semibold text-base hidden sm:block">{user?.username || 'User'}</span>
-            <FaChevronDown className={`text-cyan-300 transition-transform duration-200 ${open ? 'rotate-180' : ''}`} />
-          </button>
-          {open && (
-            <div className="absolute right-0 mt-2 w-48 bg-white/90 dark:bg-black/90 rounded-xl shadow-2xl border border-white/20 animate-fadeIn z-50">
-              <button
-                className="w-full flex items-center gap-3 px-4 py-3 text-cyan-600 dark:text-cyan-300 hover:bg-cyan-50 dark:hover:bg-cyan-900 rounded-xl transition-all duration-150 text-base font-medium"
-                onClick={logout}
-              >
-                <FaSignOutAlt /> Logout
-              </button>
-            </div>
-          )}
-        </div>
+            <Icon className="w-5 h-5" />
+            <span>{label}</span>
+          </NavLink>
+        ))}
       </div>
-      <style>{`
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: none; } }
-        .animate-fadeIn { animation: fadeIn 0.2s ease; }
-      `}</style>
-    </header>
+      {/* Spacer */}
+      <div className="flex-1" />
+      <button onClick={logout} className="ml-4 flex items-center gap-2 px-3 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white font-medium transition">
+        <FaSignOutAlt className="w-5 h-5" />
+        <span className="hidden md:inline">Logout</span>
+      </button>
+      {/* (Optional) User avatar or logout button can go here */}
+    </nav>
   );
 };
 
-export default Navbar;
-
-export const BottomNav: React.FC = () => {
-  const location = useLocation();
-  return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-gray-900 text-white flex justify-around py-3 z-50 border-t border-gray-800">
-      <Link to="/" className={location.pathname === "/" ? "text-cyan-400" : ""}><FaHome size={24} /></Link>
-      <Link to="/feed" className={location.pathname === "/feed" ? "text-cyan-400" : ""}><FaStream size={24} /></Link>
-      <Link to="/posts/create" className={location.pathname === "/posts/create" ? "text-cyan-400" : ""}><FaPlus size={24} /></Link>
-      <Link to="/messages" className={location.pathname === "/messages" ? "text-cyan-400" : ""}><FaEnvelope size={24} /></Link>
-      <Link to="/profile" className={location.pathname === "/profile" ? "text-cyan-400" : ""}><FaUser size={24} /></Link>
-    </nav>
-  );
-} 
+export default Navbar; 
