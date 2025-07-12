@@ -226,6 +226,8 @@ def upload_avatar():
             db.session.add(profile)
             db.session.commit()
         # Accept both 'file' and 'banner' as possible keys
+        print('[UPLOAD] Request files:', request.files)
+        print('[UPLOAD] Request form:', request.form)
         file = request.files.get('file') or request.files.get('banner')
         if not file:
             print('[UPLOAD] No file or banner part in request')
@@ -279,7 +281,6 @@ def uploaded_file(filename):
 @profile_bp.route('/profile', methods=['OPTIONS'])
 def profile_options():
     response = make_response()
-    response.headers['Access-Control-Allow-Origin'] = '*'
     response.headers['Access-Control-Allow-Methods'] = 'GET,PUT,POST,OPTIONS'
     response.headers['Access-Control-Allow-Headers'] = 'Content-Type,Authorization'
     return response
@@ -287,8 +288,6 @@ def profile_options():
 @profile_bp.route('/profile/image', methods=['OPTIONS'])
 def profile_image_options():
     response = make_response()
-    response.headers['Access-Control-Allow-Origin'] = 'http://localhost:5174'
     response.headers['Access-Control-Allow-Methods'] = 'POST,OPTIONS'
     response.headers['Access-Control-Allow-Headers'] = 'Content-Type,Authorization'
-    response.headers['Access-Control-Allow-Credentials'] = 'true'
     return response 

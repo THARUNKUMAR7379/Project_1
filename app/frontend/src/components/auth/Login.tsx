@@ -62,6 +62,11 @@ const Login: React.FC = () => {
       <div className="w-full max-w-md p-8 rounded-2xl shadow-2xl backdrop-blur-md bg-white/5 border border-white/10 relative"
         style={{ boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.37)' }}>
         <h2 className="text-3xl font-bold text-center text-white mb-8 drop-shadow-lg">Login</h2>
+        <div className="flex justify-end mb-4">
+          <Link to="/signup" className="inline-block px-4 py-2 rounded-lg bg-cyan-700 hover:bg-cyan-800 text-white font-semibold shadow transition-all duration-150">
+            New here? Sign up
+          </Link>
+        </div>
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Identifier (username/email) */}
           <div className="relative">

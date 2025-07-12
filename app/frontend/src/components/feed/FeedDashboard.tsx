@@ -1,7 +1,6 @@
 import React from 'react';
 import Sidebar from './Sidebar';
 import ProfileSection from './ProfileSection';
-import PostCreate from './PostCreate';
 import Widgets from './Widgets';
 // import Feed from './Feed'; // Placeholder for posts list
 
@@ -21,6 +20,7 @@ const FeedDashboard: React.FC = () => {
             <ProfileSection />
             {/* Feed (posts list) - Placeholder */}
             {/* <Feed /> */}
+            {/* Remove PostCreate from feed */}
           </section>
 
           {/* Right: Widgets (hidden on small screens) */}

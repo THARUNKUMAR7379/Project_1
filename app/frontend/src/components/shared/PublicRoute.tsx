@@ -11,9 +11,9 @@ const PublicRoute: React.FC<PublicRouteProps> = ({ children }) => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // If not loading and authenticated, redirect to home
+    // If not loading and authenticated, redirect to profile
     if (!loading && isAuthenticated) {
-      navigate('/');
+      navigate('/profile');
     }
   }, [isAuthenticated, loading, navigate]);
 

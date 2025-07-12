@@ -34,8 +34,15 @@ const ProfileView: React.FC = () => {
 
   // Avatar upload logic
   const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    console.log('[FRONTEND] handleAvatarChange called');
+    console.log('[FRONTEND] Event target:', e.target);
+    console.log('[FRONTEND] Event target files:', e.target.files);
     const file = e.target.files?.[0];
-    if (!file) return;
+    console.log('[FRONTEND] Selected file:', file);
+    if (!file) {
+      console.log('[FRONTEND] No file selected');
+      return;
+    }
     if (!['image/jpeg', 'image/png', 'image/jpg'].includes(file.type)) {
       toast.error('Only JPG/PNG images allowed.');
       return;
@@ -46,9 +53,14 @@ const ProfileView: React.FC = () => {
     }
     setAvatarUploading(true);
     try {
+      console.log('[FRONTEND] Uploading file:', file);
+      console.log('[FRONTEND] File name:', file.name);
+      console.log('[FRONTEND] File type:', file.type);
+      console.log('[FRONTEND] File size:', file.size);
       const formData = new FormData();
       formData.append('file', file);
       formData.append('type', 'avatar');
+      console.log('[FRONTEND] FormData created');
       const response = await fetch('http://localhost:5000/api/profile/image', {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` },
@@ -99,9 +111,14 @@ const ProfileView: React.FC = () => {
     }
     setBannerUploading(true);
     try {
+      console.log('[FRONTEND] Uploading banner file:', file);
+      console.log('[FRONTEND] Banner file name:', file.name);
+      console.log('[FRONTEND] Banner file type:', file.type);
+      console.log('[FRONTEND] Banner file size:', file.size);
       const formData = new FormData();
       formData.append('file', file);
       formData.append('type', 'banner');
+      console.log('[FRONTEND] Banner FormData created');
       const response = await fetch('http://localhost:5000/api/profile/image', {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` },
