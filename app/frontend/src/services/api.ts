@@ -2,27 +2,32 @@
 // Example endpoints: '/api/auth/login', '/api/auth/signup', '/api/profile', etc.
 // Make sure your frontend calls match these routes and the backend is running on this port.
 
-const API_URL = 'http://localhost:5000';
+import axios from 'axios';
 
-// Example login function for POST /api/auth/login
-export async function login(email: string, password: string) {
-  try {
-    const response = await fetch('http://localhost:5000/api/auth/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ email, password }),
-    });
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || 'Login failed');
-    }
-    return await response.json();
-  } catch (error: any) {
-    throw new Error(error.message || 'Network error');
+const API = axios.create({
+  baseURL: 'http://localhost:5000/api',
+});
+
+API.interceptors.request.use((req) => {
+  const token = localStorage.getItem('token');
+  if (token) {
+    req.headers.Authorization = `Bearer ${token}`;
   }
-}
+  // Remove Content-Type for GET requests
+  if (req.method && req.method.toLowerCase() === 'get' && req.headers['Content-Type']) {
+    delete req.headers['Content-Type'];
+  }
+  return req;
+});
+
+export const createPost = (postData: {
+  content: string;
+  tags?: string[];
+  visibility?: string;
+  media?: string[];
+}) => API.post('/posts', postData);
+
+export const getProfile = () => API.get('/profile');
 
 export const api = {
   // Auth endpoints
@@ -46,11 +51,20 @@ export const api = {
 
   // Profile endpoints
   getProfile: async () => {
+    const token = localStorage.getItem('token');
     const response = await fetch(`${API_URL}/api/profile`, {
       headers: {
-        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        Authorization: `Bearer ${token}`
       },
     });
+    if (!response.ok) {
+      // Fallback: return a default profile structure
+      return {
+        success: false,
+        profile: null,
+        message: 'Failed to fetch profile',
+      };
+    }
     return response.json();
   },
 

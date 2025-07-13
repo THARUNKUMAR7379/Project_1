@@ -56,66 +56,24 @@ def get_media_type(filename):
 @posts_bp.route('/posts', methods=['POST'])
 @jwt_required()
 def create_post():
+    data = request.get_json() or {}
+    content = data.get('content', '').strip()
+    if not content:
+        return jsonify({'error': 'Post content is required.'}), 400
+    tags = data.get('tags', [])
+    visibility = data.get('visibility', 'public')
+    media = data.get('media', [])
     user_id = get_jwt_identity()
-    user = User.query.get(user_id)
-    if not user:
-        return jsonify(success=False, message='User not found'), 404
-
-    content = request.form.get('content', '').strip()
-    file = request.files.get('media')
-    category = request.form.get('category', '').strip()
-    tags = request.form.get('tags', '[]')
-    visibility = request.form.get('visibility', 'public')
-
-    # Validate content or media
-    if not content and not file:
-        return jsonify(success=False, message='Post must have text or media.'), 400
-
-    # Parse tags
-    try:
-        tags_list = json.loads(tags) if tags else []
-    except:
-        tags_list = []
-
-    media_url = None
-    media_type = None
-    if file:
-        if not allowed_file(file.filename):
-            return jsonify(success=False, message='Invalid media type.'), 400
-        file.seek(0, os.SEEK_END)
-        file_length = file.tell()
-        file.seek(0)
-        if file_length > MAX_MEDIA_SIZE_MB * 1024 * 1024:
-            return jsonify(success=False, message='File too large. Max 10MB.'), 400
-        ext = file.filename.rsplit('.', 1)[1].lower()
-        media_type = get_media_type(file.filename)
-        unique_id = str(uuid.uuid4())
-        filename = f'post_{user_id}_{unique_id}.{ext}'
-        upload_dir = os.path.join(current_app.root_path, UPLOAD_FOLDER)
-        os.makedirs(upload_dir, exist_ok=True)
-        filepath = os.path.join(upload_dir, filename)
-        file.save(filepath)
-        media_url = f'/static/uploads/posts/{filename}'
-
-    post = Post(
+    new_post = Post(
         user_id=user_id,
         content=content,
-        media_url=media_url,
-        media_type=media_type,
-        category=category,
+        tags=tags,
         visibility=visibility,
-        created_at=datetime.utcnow()
+        media=media
     )
-    post.set_tags(tags_list)
-    
-    db.session.add(post)
+    db.session.add(new_post)
     db.session.commit()
-
-    # Invalidate cache when new post is created
-    _cache['categories'] = None
-    _cache['popular_tags'] = None
-
-    return jsonify(success=True, post=post.to_dict()), 201
+    return jsonify({'success': True, 'post': new_post.serialize()}), 201
 
 @posts_bp.route('/posts', methods=['GET'])
 def get_posts():

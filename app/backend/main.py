@@ -20,7 +20,7 @@ app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET', 'super-secret')
 
 # Enable CORS for both Vite (5173/5174) and React (3000) dev servers with comprehensive settings
 CORS(app, 
-     origins=["http://localhost:5173", "http://localhost:5174", "http://localhost:3000"], 
+     origins="*",  # Allow all origins for development
      supports_credentials=True, 
      allow_headers=["Content-Type", "Authorization", "Accept"],
      methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"])

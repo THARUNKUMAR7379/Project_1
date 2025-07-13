@@ -39,59 +39,11 @@ def log_request():
 @profile_bp.route('/profile', methods=['GET'])
 @jwt_required()
 def get_profile():
-    try:
-        user_id = get_jwt_identity()
-        user = User.query.get(user_id)
-        if not user:
-            return jsonify(success=False, message='User not found'), 404
-        profile = Profile.query.filter_by(user_id=user.id).first()
-        if not profile:
-            # Auto-create empty profile
-            profile = Profile(user_id=user.id)
-            db.session.add(profile)
-            db.session.commit()
-        # Build avatar URL
-        avatar_url = None
-        if profile.avatar:
-            if profile.avatar.startswith('http'):
-                avatar_url = profile.avatar
-            else:
-                avatar_url = f"http://localhost:5000{profile.avatar}"
-        return jsonify(success=True, profile={
-            'id': profile.id,
-            'user_id': profile.user_id,
-            'avatar': avatar_url,
-            'name': profile.name or '',
-            'title': profile.title or '',
-            'bio': profile.bio or '',
-            'location': profile.location or '',
-            'address': profile.address or '',
-            'skills': profile.skills or [],
-            'socials': profile.socials or {},
-            'experiences': [
-                {
-                    'id': exp.id,
-                    'title': exp.title,
-                    'company': exp.company,
-                    'start_date': exp.start_date.isoformat() if exp.start_date else None,
-                    'end_date': exp.end_date.isoformat() if exp.end_date else None,
-                    'description': exp.description
-                } for exp in profile.experiences
-            ],
-            'education': [
-                {
-                    'id': edu.id,
-                    'school': edu.school,
-                    'degree': edu.degree,
-                    'field': edu.field,
-                    'start_date': edu.start_date.isoformat() if edu.start_date else None,
-                    'end_date': edu.end_date.isoformat() if edu.end_date else None
-                } for edu in profile.education
-            ]
-        }), 200
-    except Exception as e:
-        print(f"Error getting profile: {e}")
-        return jsonify(success=False, message='Failed to get profile'), 500
+    user_id = get_jwt_identity()
+    user = User.query.get(user_id)
+    if not user:
+        return jsonify({'error': 'User not found.'}), 200
+    return jsonify({'success': True, 'user': user.serialize()})
 
 @profile_bp.route('/profile', methods=['PUT'])
 @jwt_required()
@@ -116,6 +68,11 @@ def update_profile():
         if not profile:
             profile = Profile(user_id=user.id)
             db.session.add(profile)
+        # Validate types for skills and socials
+        if 'skills' in data and not isinstance(data['skills'], list):
+            return jsonify(success=False, message='Skills must be a list.'), 400
+        if 'socials' in data and not isinstance(data['socials'], dict):
+            return jsonify(success=False, message='Socials must be an object/dict.'), 400
         # Use last saved value or fallback default for missing/empty fields
         def fallback(field, default=''):
             return data.get(field) if data.get(field) not in [None, ''] else getattr(profile, field, default)
@@ -124,6 +81,8 @@ def update_profile():
         profile.bio = fallback('bio')
         profile.location = fallback('location')
         profile.address = fallback('address')
+        # Accept and ignore 'banner' if present (for compatibility with frontend)
+        _ = data.get('banner', None)
         profile.skills = data.get('skills') if isinstance(data.get('skills'), list) and data.get('skills') else (profile.skills or [])
         profile.socials = data.get('socials') if isinstance(data.get('socials'), dict) and data.get('socials') else (profile.socials or {})
         # Experiences and education (optional, fallback to existing)
@@ -226,8 +185,12 @@ def upload_avatar():
             db.session.add(profile)
             db.session.commit()
         # Accept both 'file' and 'banner' as possible keys
-        print('[UPLOAD] Request files:', request.files)
-        print('[UPLOAD] Request form:', request.form)
+        print('[UPLOAD DEBUG] request.files:', request.files)
+        print('[UPLOAD DEBUG] request.form:', request.form)
+        if request.files:
+            for key in request.files:
+                f = request.files[key]
+                print(f'[UPLOAD DEBUG] key: {key}, filename: {f.filename}, size: {f.content_length if hasattr(f, "content_length") else "unknown"}')
         file = request.files.get('file') or request.files.get('banner')
         if not file:
             print('[UPLOAD] No file or banner part in request')
