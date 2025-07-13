@@ -18,9 +18,16 @@ app = Flask(__name__, static_folder='static')
 app.config.from_object(Config)
 app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET', 'super-secret')
 
-# Enable CORS for both Vite (5173/5174) and React (3000) dev servers with comprehensive settings
+# Enable CORS for development and production
+CORS_ORIGINS = [
+    "http://localhost:5173", 
+    "http://localhost:5174", 
+    "http://localhost:3000",
+    "https://your-frontend-app.onrender.com"  # Replace with your actual frontend URL
+]
+
 CORS(app, 
-     origins=["http://localhost:5173", "http://localhost:5174", "http://localhost:3000"], 
+     origins=CORS_ORIGINS, 
      supports_credentials=True, 
      allow_headers=["Content-Type", "Authorization", "Accept"],
      methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"])
@@ -61,4 +68,5 @@ if __name__ == '__main__':
     setup_database()
     
     # Run the app
-    app.run(debug=True) 
+    debug_mode = os.environ.get('FLASK_ENV') == 'development'
+    app.run(debug=debug_mode, host='0.0.0.0', port=int(os.environ.get('PORT', 5000))) 

@@ -1,13 +1,13 @@
-// NOTE: The backend API base URL should be 'http://localhost:5000'.
-// Example endpoints: '/api/auth/login', '/api/auth/signup', '/api/profile', etc.
-// Make sure your frontend calls match these routes and the backend is running on this port.
-
-const API_URL = 'http://localhost:5000';
+// API configuration for development and production
+const isDevelopment = import.meta.env.DEV;
+const API_URL = isDevelopment 
+  ? 'http://localhost:5000' 
+  : 'https://your-backend-app.onrender.com'; // Replace with your actual backend URL
 
 // Example login function for POST /api/auth/login
 export async function login(email: string, password: string) {
   try {
-    const response = await fetch('http://localhost:5000/api/auth/login', {
+    const response = await fetch(`${API_URL}/api/auth/login`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
