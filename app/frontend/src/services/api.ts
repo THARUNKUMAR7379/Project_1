@@ -1,8 +1,5 @@
 // API configuration for development and production
-const isDevelopment = import.meta.env.DEV;
-const API_URL = isDevelopment 
-  ? 'http://localhost:5000' 
-  : 'https://your-backend-app.onrender.com'; // Replace with your actual backend URL
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 // Example login function for POST /api/auth/login
 export async function login(email: string, password: string) {
