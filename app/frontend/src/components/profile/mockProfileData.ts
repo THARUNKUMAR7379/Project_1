@@ -13,7 +13,7 @@ export const mockProfile: Profile = {
   bio: 'Full Stack Developer passionate about building impactful products. Lover of React, Node.js, and beautiful UI.',
   location: 'San Francisco, CA',
   skills: ['React', 'TypeScript', 'Node.js', 'GraphQL', 'UI/UX'],
-  experience: [
+  experiences: [
     {
       id: 1,
       title: 'Senior Software Engineer',

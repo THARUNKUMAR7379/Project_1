@@ -1,60 +1,89 @@
-import React, { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import ProfileView from '../profile/ProfileView';
-import PostCreate from '../posts/PostCreate';
-import PostList from '../posts/PostList';
+import { FaUsers, FaFileAlt, FaBriefcase, FaComments } from 'react-icons/fa';
 
 const HomePage: React.FC = () => {
-  const { user, isAuthenticated, loading } = useAuth();
-  const navigate = useNavigate();
+  const { isAuthenticated, loading } = useAuth();
 
-  useEffect(() => {
-    // If not loading and not authenticated, redirect to login
-    if (!loading && !isAuthenticated) {
-      navigate('/login');
-    }
-  }, [isAuthenticated, loading, navigate]);
-
-  // Show loading while checking authentication
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin inline-block w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full mb-4"></div>
-          <p className="text-gray-600">Loading...</p>
-        </div>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
       </div>
     );
   }
 
-  // If not authenticated, don't render anything (will redirect)
-  if (!isAuthenticated) {
-    return null;
-  }
-
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col md:flex-row justify-center gap-6 p-4">
-      {/* Left Sidebar: Profile */}
-      <aside className="hidden md:block md:w-1/4 lg:w-1/5">
-        <div className="sticky top-6">
-          <ProfileView />
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+      {/* Hero Section */}
+      <div className="container mx-auto px-4 py-16">
+        <div className="text-center">
+          <h1 className="text-5xl font-bold text-gray-900 mb-6">
+            Welcome to <span className="text-blue-600">ProK</span>
+          </h1>
+          <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
+            Connect with professionals, share your expertise, and discover opportunities in your field.
+          </p>
+          
+          {!isAuthenticated ? (
+            <div className="space-x-4">
+              <Link
+                to="/login"
+                className="bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors"
+              >
+                Get Started
+              </Link>
+              <Link
+                to="/signup"
+                className="border border-blue-600 text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-blue-50 transition-colors"
+              >
+                Sign Up
+              </Link>
+            </div>
+          ) : (
+            <Link
+              to="/feed"
+              className="bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors"
+            >
+              Go to Feed
+            </Link>
+          )}
         </div>
-      </aside>
+      </div>
 
-      {/* Center: Feed */}
-      <main className="w-full md:w-2/4 lg:w-2/5 flex flex-col gap-6">
-        <PostCreate />
-        <PostList />
-      </main>
-
-      {/* Right Sidebar: Placeholder for news/stats */}
-      <aside className="hidden lg:block lg:w-1/5">
-        <div className="sticky top-6 bg-white rounded-xl shadow p-4 border border-gray-200 min-h-[200px]">
-          {/* Add widgets like news, stats, suggestions here */}
-          <div className="text-gray-400 text-center">Widgets coming soon...</div>
+      {/* Features Section */}
+      <div className="container mx-auto px-4 py-16">
+        <h2 className="text-3xl font-bold text-center text-gray-900 mb-12">
+          Everything you need to grow professionally
+        </h2>
+        
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="text-center p-6 bg-white rounded-lg shadow-md">
+            <FaUsers className="text-4xl text-blue-600 mx-auto mb-4" />
+            <h3 className="text-xl font-semibold mb-2">Professional Network</h3>
+            <p className="text-gray-600">Connect with professionals in your industry</p>
+          </div>
+          
+          <div className="text-center p-6 bg-white rounded-lg shadow-md">
+            <FaFileAlt className="text-4xl text-blue-600 mx-auto mb-4" />
+            <h3 className="text-xl font-semibold mb-2">Share Content</h3>
+            <p className="text-gray-600">Share your expertise and insights</p>
+          </div>
+          
+          <div className="text-center p-6 bg-white rounded-lg shadow-md">
+            <FaBriefcase className="text-4xl text-blue-600 mx-auto mb-4" />
+            <h3 className="text-xl font-semibold mb-2">Job Opportunities</h3>
+            <p className="text-gray-600">Discover career opportunities</p>
+          </div>
+          
+          <div className="text-center p-6 bg-white rounded-lg shadow-md">
+            <FaComments className="text-4xl text-blue-600 mx-auto mb-4" />
+            <h3 className="text-xl font-semibold mb-2">Direct Messaging</h3>
+            <p className="text-gray-600">Connect privately with other professionals</p>
+          </div>
         </div>
-      </aside>
+      </div>
     </div>
   );
 };

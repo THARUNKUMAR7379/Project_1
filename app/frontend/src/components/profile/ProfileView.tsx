@@ -127,7 +127,7 @@ const ProfileView: React.FC = () => {
       const data = await response.json();
       if (data.success && data.url) {
         setBannerPreview(data.url);
-        await updateProfile({ banner: data.url });
+        await updateProfile({ banner: data.url } as Partial<Profile>);
         await refreshProfile();
         toast.success('Banner updated!');
       } else {

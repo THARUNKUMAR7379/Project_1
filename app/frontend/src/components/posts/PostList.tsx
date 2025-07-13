@@ -1,10 +1,10 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { postsApi } from './api';
-import type { PostFilters, PaginationInfo } from './api';
+import type { PostFilters as PostFiltersType, PaginationInfo } from './api';
 import { useInfiniteScroll } from '../../hooks/useInfiniteScroll';
 import { useDebounce } from '../../hooks/useDebounce';
 import LazyImage from '../shared/LazyImage';
-import PostFilters from './PostFilters';
+import PostFiltersComponent from './PostFilters';
 import type { Post } from '../../types';
 
 interface PostListProps {
@@ -25,7 +25,7 @@ const PostList: React.FC<PostListProps> = ({ refreshKey, showFilters = true }) =
   const [pagination, setPagination] = useState<PaginationInfo | null>(null);
   const [categories, setCategories] = useState<string[]>([]);
   const [popularTags, setPopularTags] = useState<string[]>([]);
-  const [filters, setFilters] = useState<PostFilters>({
+  const [filters, setFilters] = useState<PostFiltersType>({
     search: '',
     category: '',
     visibility: '',
@@ -117,7 +117,7 @@ const PostList: React.FC<PostListProps> = ({ refreshKey, showFilters = true }) =
   });
 
   // Handle filter changes
-  const handleFiltersChange = (newFilters: PostFilters) => {
+  const handleFilterChange = (newFilters: PostFiltersType) => {
     setFilters(newFilters);
   };
 
@@ -160,9 +160,9 @@ const PostList: React.FC<PostListProps> = ({ refreshKey, showFilters = true }) =
       {/* Filters */}
       {showFilters && (
         <div className="mb-6">
-          <PostFilters
+          <PostFiltersComponent
             filters={filters}
-            onFiltersChange={handleFiltersChange}
+            onChange={handleFilterChange}
             categories={categories}
             popularTags={popularTags}
             loading={loading}
