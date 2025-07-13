@@ -1,4 +1,4 @@
-from app.backend.extensions import db
+from extensions import db
 
 class Profile(db.Model):
     __tablename__ = 'profiles'

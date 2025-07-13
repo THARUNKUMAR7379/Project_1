@@ -166,106 +166,78 @@ const PostCreate: React.FC<PostCreateProps> = ({ onPostCreated }) => {
   const displayName = profile?.name || user?.username || 'User';
 
   return (
-    <div className="max-w-2xl mx-auto p-4">
-      <div className="bg-white rounded-2xl shadow-lg p-8 border border-gray-200 relative">
-        <h2 className="text-2xl font-bold mb-6 text-blue-700">Create a Post</h2>
+    <div className="max-w-xl mx-auto p-4">
+      <div className="bg-white rounded-3xl shadow-2xl p-8 border border-gray-100 relative transition-all duration-300 hover:shadow-3xl">
+        <h2 className="text-3xl font-extrabold mb-8 text-blue-700 tracking-tight">Create a Post</h2>
         {/* User avatar and name */}
-        <div className="flex items-center gap-3 mb-6">
+        <div className="flex items-center gap-4 mb-8">
           <img
             src={avatarUrl}
             alt="Avatar"
-            className="w-12 h-12 rounded-full border object-cover bg-gray-200"
+            className="w-16 h-16 rounded-full border-4 border-blue-200 object-cover bg-gray-100 shadow-md"
           />
           <div>
-            <div className="font-semibold text-gray-900 text-lg">{displayName}</div>
-            <div className="text-xs text-gray-400">Share your thoughts with your network</div>
+            <div className="font-bold text-gray-900 text-xl">{displayName}</div>
+            <div className="text-xs text-gray-500">Share your thoughts with your network</div>
           </div>
         </div>
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-7">
           <div>
             <SimpleEditor
               value={content}
               onChange={handleContentChange}
-              placeholder="Start a post..."
-              className="mb-2"
+              placeholder="What's on your mind? Start typing..."
+              className="mb-2 rounded-2xl border border-gray-200 bg-gray-50 focus-within:ring-2 focus-within:ring-blue-200 transition-all min-h-[80px] text-gray-900 placeholder-gray-500"
             />
           </div>
-
-          {/* Category and Visibility */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Category
-              </label>
-              <input
-                type="text"
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                placeholder="e.g., Technology, Travel, Food"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Visibility
-              </label>
-              <select
-                value={visibility}
-                onChange={(e) => setVisibility(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-              >
-                <option value="public">Public</option>
-                <option value="private">Private</option>
-                <option value="friends">Friends Only</option>
-              </select>
-            </div>
+            <input
+              type="text"
+              className="rounded-xl border border-gray-200 px-4 py-2 bg-gray-50 focus:ring-2 focus:ring-blue-200 focus:border-blue-400 transition w-full text-gray-900 placeholder-gray-500"
+              placeholder="e.g., Technology, Travel, Food"
+              value={category}
+              onChange={e => setCategory(e.target.value)}
+            />
+            <select
+              className="rounded-xl border border-gray-200 px-4 py-2 bg-gray-50 focus:ring-2 focus:ring-blue-200 focus:border-blue-400 transition w-full text-gray-900"
+              value={visibility}
+              onChange={e => setVisibility(e.target.value)}
+            >
+              <option value="public">Public</option>
+              <option value="friends">Friends</option>
+              <option value="private">Private</option>
+            </select>
           </div>
-
           {/* Tags */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Tags
-            </label>
-            <div className="flex gap-2 mb-2">
-              <input
-                type="text"
-                value={tagInput}
-                onChange={(e) => setTagInput(e.target.value)}
-                onKeyPress={handleTagKeyPress}
-                placeholder="Add a tag and press Enter"
-                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-              />
-              <button
-                type="button"
-                onClick={handleAddTag}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-              >
-                Add
-              </button>
-            </div>
-            {tags.length > 0 && (
-              <div className="flex flex-wrap gap-2">
-                {tags.map((tag, index) => (
-                  <span
-                    key={index}
-                    className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
-                  >
-                    #{tag}
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveTag(tag)}
-                      className="ml-1 text-blue-600 hover:text-blue-800"
-                    >
-                      ×
-                    </button>
-                  </span>
-                ))}
-              </div>
-            )}
+          <div className="flex flex-wrap gap-2 items-center">
+            {tags.map(tag => (
+              <span key={tag} className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full flex items-center text-sm shadow-sm">
+                #{tag}
+                <button type="button" onClick={() => setTags(tags.filter(t => t !== tag))} className="ml-2 text-xs hover:text-red-400">×</button>
+              </span>
+            ))}
+            <input
+              className="bg-gray-50 border border-gray-200 rounded px-2 py-1 w-32 focus:outline-none focus:ring-2 focus:ring-blue-200 transition text-gray-900 placeholder-gray-500"
+              placeholder="Add tag"
+              value={tagInput}
+              onChange={e => setTagInput(e.target.value.replace(/[^a-zA-Z0-9]/g, ''))}
+              onKeyDown={e => {
+                if ((e.key === 'Enter' || e.key === ',' || e.key === ' ') && tagInput) {
+                  e.preventDefault();
+                  handleAddTag();
+                }
+              }}
+              list="tag-suggestions"
+            />
+            <datalist id="tag-suggestions">
+              {['react', 'typescript', 'tailwind', 'webdev', 'uiux'].filter(s => !tags.includes(s)).map(s => (
+                <option value={s} key={s} />
+              ))}
+            </datalist>
           </div>
-          {/* Drag-and-drop media upload area */}
+          {/* Media upload */}
           <div
-            className="border-2 border-dashed border-gray-300 rounded-lg p-4 flex flex-col items-center justify-center cursor-pointer bg-gray-50 hover:bg-blue-50 transition relative"
+            className="border-2 border-dashed border-blue-200 rounded-2xl p-5 flex flex-col items-center justify-center cursor-pointer bg-blue-50 hover:bg-blue-100 transition relative"
             onDrop={handleDrop}
             onDragOver={handleDragOver}
             onClick={() => fileInputRef.current?.click()}
@@ -281,11 +253,9 @@ const PostCreate: React.FC<PostCreateProps> = ({ onPostCreated }) => {
               className="hidden"
             />
             <div className="flex items-center gap-2 text-blue-600">
-              <FaImage className="text-2xl" />
-              <FaVideo className="text-2xl" />
               <span className="font-medium">Add image or video (drag & drop or click)</span>
             </div>
-            <div className="text-xs text-gray-400 mt-1">Max size: 10MB. Allowed: PNG, JPG, JPEG, MP4, MOV, WEBM.</div>
+            <div className="text-xs text-gray-500 mt-1">Max size: 10MB. Allowed: PNG, JPG, JPEG, MP4, MOV, WEBM.</div>
             {mediaPreview && (
               <div className="mt-4 w-full flex flex-col items-center gap-2 relative">
                 <button
@@ -294,12 +264,12 @@ const PostCreate: React.FC<PostCreateProps> = ({ onPostCreated }) => {
                   className="absolute top-0 right-0 text-red-500 bg-white rounded-full shadow p-1 hover:bg-red-50"
                   aria-label="Remove media"
                 >
-                  <FaTimes />
+                  ×
                 </button>
                 {mediaFile && mediaFile.type.startsWith('image') ? (
-                  <img src={mediaPreview} alt="Preview" className="max-h-48 rounded border" />
+                  <img src={mediaPreview} alt="Preview" className="max-h-48 rounded-xl border" />
                 ) : (
-                  <video src={mediaPreview} controls className="max-h-48 rounded border" />
+                  <video src={mediaPreview} controls className="max-h-48 rounded-xl border" />
                 )}
               </div>
             )}
@@ -311,7 +281,7 @@ const PostCreate: React.FC<PostCreateProps> = ({ onPostCreated }) => {
           <div className="flex justify-end">
             <button
               type="submit"
-              className="bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold shadow hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 transition disabled:opacity-50"
+              className="bg-gradient-to-r from-blue-500 to-blue-700 text-white px-8 py-3 rounded-full font-bold shadow-lg hover:from-blue-600 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 transition disabled:opacity-50 text-lg"
               disabled={loading || !isLoggedIn() || (!content && !mediaFile)}
             >
               {loading ? (
@@ -322,19 +292,19 @@ const PostCreate: React.FC<PostCreateProps> = ({ onPostCreated }) => {
         </form>
         {/* Preview Section */}
         <div className="mt-10">
-          <h3 className="text-lg font-semibold mb-3 text-gray-700">Live Preview</h3>
-          <div className="border rounded-xl p-5 bg-gray-50 min-h-[80px]">
+          <h3 className="text-lg font-semibold mb-3 text-gray-800">Live Preview</h3>
+          <div className="border rounded-2xl p-5 bg-gray-50 min-h-[80px]">
             <div
-              className="prose max-w-none text-gray-800"
+              className="prose max-w-none text-gray-900"
               style={{ color: '#1F2937' }}
               dangerouslySetInnerHTML={{ __html: content || '<span class="text-gray-400">Nothing to preview.</span>' }}
             />
             {mediaPreview && (
               <div className="mt-3">
                 {mediaFile && mediaFile.type.startsWith('image') ? (
-                  <img src={mediaPreview} alt="Preview" className="max-h-48 rounded border" />
+                  <img src={mediaPreview} alt="Preview" className="max-h-48 rounded-xl border" />
                 ) : (
-                  <video src={mediaPreview} controls className="max-h-48 rounded border" />
+                  <video src={mediaPreview} controls className="max-h-48 rounded-xl border" />
                 )}
               </div>
             )}

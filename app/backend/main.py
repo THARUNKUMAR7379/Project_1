@@ -1,17 +1,17 @@
 from flask import Flask, jsonify
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
-from .config import Config
+from config import Config
 from dotenv import load_dotenv
-from .extensions import db  # FIX: import db from extensions, not models
+from extensions import db  # FIX: import db from extensions, not models
 import os
 
 # Load environment variables
 load_dotenv()
 
 # Import models
-from .models.user import User  # Only import User, not db
-from .models.profile import Profile, Skill, Experience, Education  # Only import models, not db
+from models.user import User  # Only import User, not db
+from models.profile import Profile, Skill, Experience, Education  # Only import models, not db
 
 # Create Flask app
 app = Flask(__name__, static_folder='static')
@@ -32,7 +32,7 @@ jwt = JWTManager(app)
 db.init_app(app)
 
 # Register blueprints
-from .api import auth_bp, profile_bp, posts_bp, feed_bp, jobs_bp, messaging_bp
+from api import auth_bp, profile_bp, posts_bp, feed_bp, jobs_bp, messaging_bp
 app.register_blueprint(auth_bp)
 app.register_blueprint(profile_bp)
 app.register_blueprint(posts_bp)

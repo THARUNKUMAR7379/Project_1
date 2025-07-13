@@ -14,6 +14,7 @@ import MainLayout from '../components/navigation/MainLayout';
 import HomePage from '../components/home/HomePage';
 import ProtectedRoute from '../components/shared/ProtectedRoute';
 import PublicRoute from '../components/shared/PublicRoute';
+import FeedDashboard from '../components/feed/FeedDashboard';
 
 export const router = createBrowserRouter([
   {
@@ -59,7 +60,7 @@ export const router = createBrowserRouter([
       { path: '/edit-profile', element: <ProfileEdit /> },
       { path: '/posts/create', element: <PostCreate /> },
       { path: '/posts', element: <PostsPage /> },
-      { path: '/feed', element: <PostsPage /> },
+      { path: '/feed', element: <FeedDashboard /> },
       { path: '/jobs', element: <JobList /> },
       { path: '/messages', element: <MessageList /> },
       { path: '*', element: <NotFound /> },

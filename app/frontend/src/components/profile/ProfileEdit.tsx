@@ -37,7 +37,14 @@ const ProfileEdit = () => {
     avatar: profile?.avatar || '',
     banner: profile?.banner || '',
     skills: profile?.skills || [],
-    socials: { ...defaultProfile.socials, ...(profile?.socials || {}) },
+    socials: { 
+      linkedin: profile?.socials?.linkedin || '',
+      github: profile?.socials?.github || '',
+      phone: profile?.socials?.phone || '',
+      email: profile?.socials?.email || '',
+      ...defaultProfile.socials, 
+      ...(profile?.socials || {}) 
+    },
     experiences: profile?.experiences || [],
     education: profile?.education || [],
   });
@@ -68,7 +75,14 @@ const ProfileEdit = () => {
         avatar: profile.avatar || '',
         banner: profile.banner || '',
         skills: profile.skills || [],
-        socials: { ...defaultProfile.socials, ...(profile.socials || {}) },
+        socials: { 
+          linkedin: profile.socials?.linkedin || '',
+          github: profile.socials?.github || '',
+          phone: profile.socials?.phone || '',
+          email: profile.socials?.email || '',
+          ...defaultProfile.socials, 
+          ...(profile.socials || {}) 
+        },
         experiences: profile.experiences || [],
         education: profile.education || [],
       });
@@ -468,7 +482,7 @@ const ProfileEdit = () => {
               <input
                 type="text"
                 name="linkedin"
-                value={form.socials.linkedin}
+                value={form.socials?.linkedin || ''}
                 onChange={handleSocialChange}
                 className="w-full px-3 py-2 rounded-lg border border-white/20 focus:outline-none focus:ring-2 focus:ring-cyan-400 bg-black/60 text-white"
                 placeholder="LinkedIn URL"
@@ -479,7 +493,7 @@ const ProfileEdit = () => {
               <input
                 type="text"
                 name="github"
-                value={form.socials.github}
+                value={form.socials?.github || ''}
                 onChange={handleSocialChange}
                 className="w-full px-3 py-2 rounded-lg border border-white/20 focus:outline-none focus:ring-2 focus:ring-cyan-400 bg-black/60 text-white"
                 placeholder="GitHub URL"
@@ -490,7 +504,7 @@ const ProfileEdit = () => {
               <input
                 type="text"
                 name="phone"
-                value={form.socials.phone}
+                value={form.socials?.phone || ''}
                 onChange={handleSocialChange}
                 className="w-full px-3 py-2 rounded-lg border border-white/20 focus:outline-none focus:ring-2 focus:ring-cyan-400 bg-black/60 text-white"
                 placeholder="Phone number"
@@ -501,7 +515,7 @@ const ProfileEdit = () => {
               <input
                 type="text"
                 name="email"
-                value={form.socials.email}
+                value={form.socials?.email || ''}
                 onChange={handleSocialChange}
                 className="w-full px-3 py-2 rounded-lg border border-white/20 focus:outline-none focus:ring-2 focus:ring-cyan-400 bg-black/60 text-white"
                 placeholder="Email"

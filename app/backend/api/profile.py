@@ -6,10 +6,10 @@ import os
 import io
 import uuid
 from datetime import datetime
-from app.backend.models.user import User
-from app.backend.models.profile import Profile, Experience, Education
+from models.user import User
+from models.profile import Profile, Experience, Education
 from flask_cors import CORS
-from app.backend.extensions import db
+from extensions import db
 
 profile_bp = Blueprint('profile', __name__, url_prefix='/api')
 CORS(profile_bp, origins=["http://localhost:5173", "http://localhost:5174"], supports_credentials=True)
