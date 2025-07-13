@@ -169,24 +169,10 @@ const ProfileView: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-900 text-white">
-      {/* Header */}
-      <div className="bg-gray-800 border-b border-gray-700 sticky top-0 z-10">
-        <div className="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
-          <h1 className="text-xl font-semibold">Prok – Professional Network</h1>
-          <div className="flex items-center gap-4">
-            <button onClick={() => navigate('/edit-profile')} className="flex items-center gap-2 px-4 py-2 bg-blue-600 rounded-lg hover:bg-blue-700 transition">
-              <FaEdit /> Edit Profile
-            </button>
-            <button onClick={logout} className="flex items-center gap-2 px-4 py-2 bg-red-600 rounded-lg hover:bg-red-700 transition">
-              <FaSignOutAlt /> Logout
-            </button>
-          </div>
-                  </div>
-                </div>
       {/* Banner with upload */}
       <div className="relative group" {...getBannerRootProps()}>
         <img
-          src={bannerPreview || profile?.banner || '/default-banner.jpg'}
+          src={getImageUrl(bannerPreview || profile?.banner) || '/default-banner.jpg'}
           alt="Banner"
           className="w-full h-48 object-cover transition-opacity duration-200 rounded-b-none rounded-t-xl border-b-4 border-gray-900"
           style={{ opacity: bannerUploading ? 0.5 : 1 }}
@@ -224,6 +210,12 @@ const ProfileView: React.FC = () => {
           <p className="text-xl text-gray-300">{profile?.title || 'Professional'}</p>
           {profile?.location && <div className="flex items-center text-gray-400"><FaMapMarkerAlt className="mr-2" />{profile.location}</div>}
           {profile?.address && <div className="flex items-center text-gray-400 mt-1"><FaGlobe className="mr-2" />{profile.address}</div>}
+          <button
+            onClick={() => navigate('/edit-profile')}
+            className="mt-4 flex items-center gap-2 px-5 py-2 bg-blue-600 rounded-lg hover:bg-blue-700 transition text-white font-semibold shadow focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2"
+          >
+            <FaEdit /> Edit Profile
+          </button>
         </div>
       </div>
       {/* About */}
