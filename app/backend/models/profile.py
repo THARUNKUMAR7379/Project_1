@@ -16,6 +16,40 @@ class Profile(db.Model):
     experiences = db.relationship('Experience', backref='profile', cascade='all, delete-orphan')
     education = db.relationship('Education', backref='profile', cascade='all, delete-orphan')
 
+    def serialize(self):
+        return {
+            'id': self.id,
+            'user_id': self.user_id,
+            'avatar': self.avatar,
+            'title': self.title,
+            'bio': self.bio,
+            'location': self.location,
+            'address': self.address,
+            'skills': self.skills,
+            'socials': self.socials,
+            'name': self.name,
+            'experiences': [
+                {
+                    'id': exp.id,
+                    'title': exp.title,
+                    'company': exp.company,
+                    'start_date': exp.start_date.isoformat() if exp.start_date else None,
+                    'end_date': exp.end_date.isoformat() if exp.end_date else None,
+                    'description': exp.description
+                } for exp in self.experiences
+            ],
+            'education': [
+                {
+                    'id': edu.id,
+                    'school': edu.school,
+                    'degree': edu.degree,
+                    'field': edu.field,
+                    'start_date': edu.start_date.isoformat() if edu.start_date else None,
+                    'end_date': edu.end_date.isoformat() if edu.end_date else None
+                } for edu in self.education
+            ]
+        }
+
 class Skill(db.Model):
     __tablename__ = 'skills'
     id = db.Column(db.Integer, primary_key=True)

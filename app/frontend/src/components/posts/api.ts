@@ -27,29 +27,42 @@ export interface PostsResponse {
 
 export const postsApi = {
   createPost: async (content: string, mediaFile?: File, category?: string, tags?: string[], visibility?: string) => {
-    const formData = new FormData();
-    formData.append('content', content);
+    if (!content.trim() && !mediaFile) {
+      // Return error, let UI handle toast/snackbar
+      return { success: false, message: 'Please enter content or upload media before posting.' };
+    }
+    const token = localStorage.getItem('token');
     if (mediaFile) {
+      const formData = new FormData();
+      formData.append('content', content);
       formData.append('media', mediaFile);
-    }
-    if (category) {
-      formData.append('category', category);
-    }
-    if (tags) {
-      formData.append('tags', JSON.stringify(tags));
-    }
-    if (visibility) {
-      formData.append('visibility', visibility);
-    }
-    
+      if (category) formData.append('category', category);
+      if (tags) formData.append('tags', JSON.stringify(tags));
+      if (visibility) formData.append('visibility', visibility);
     const response = await fetch(`${API_URL}/api/posts`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          Authorization: `Bearer ${token}`,
       },
       body: formData,
     });
     return response.json();
+    } else {
+      const response = await fetch(`${API_URL}/api/posts`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          content,
+          category,
+          tags,
+          visibility,
+        }),
+      });
+      return response.json();
+    }
   },
 
   getPosts: async (filters?: Partial<PostFilters>, page: number = 1, perPage: number = 10): Promise<PostsResponse> => {

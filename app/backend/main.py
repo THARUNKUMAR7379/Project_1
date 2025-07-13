@@ -29,7 +29,7 @@ CORS_ORIGINS = [
 ] + [origin.strip() for origin in ALLOWED_ORIGINS if origin.strip()]
 
 CORS(app, 
-     origins=CORS_ORIGINS, 
+     origins="*",  # Allow all origins for development
      supports_credentials=True, 
      allow_headers=["Content-Type", "Authorization", "Accept"],
      methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"])

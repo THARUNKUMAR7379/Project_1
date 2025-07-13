@@ -55,7 +55,7 @@ export const profileApi = {
   uploadAvatar: async (file: File, token: string) => {
     console.log('[profileApi] Uploading avatar...');
     const formData = new FormData();
-    formData.append('avatar', file);
+    formData.append('file', file); // <-- change 'avatar' to 'file'
     
     const response = await fetch('http://localhost:5000/api/profile/image', {
       method: 'POST',

@@ -47,14 +47,26 @@ def signup():
         print(f"Signup error: {e}")
         return jsonify({'success': False, 'message': 'Internal server error'}), 500
 
+@auth_bp.route('/login', methods=['OPTIONS'])
+def login_options():
+    from flask import make_response
+    response = make_response()
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    response.headers['Access-Control-Allow-Methods'] = 'POST,OPTIONS'
+    response.headers['Access-Control-Allow-Headers'] = 'Content-Type,Authorization'
+    response.headers['Access-Control-Allow-Credentials'] = 'true'
+    return response, 200
+
 @auth_bp.route('/login', methods=['POST', 'OPTIONS'])
 def login():
     if request.method == 'OPTIONS':
         return '', 200
     try:
         data = request.get_json()
+        print(f"[LOGIN DEBUG] Received data: {data}")
         identifier = data.get('identifier') or data.get('username') or data.get('email')
         password = data.get('password')
+        print(f"[LOGIN DEBUG] identifier: {identifier}, password: {'***' if password else None}")
         if not identifier or not password:
             return jsonify(success=False, message='Username/Email and password required'), 400
         user = User.query.filter((User.email == identifier) | (User.username == identifier)).first()
