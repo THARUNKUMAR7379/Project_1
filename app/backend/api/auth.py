@@ -31,7 +31,7 @@ def signup():
         user.set_password(password)
         db.session.add(user)
         db.session.commit()
-        token = create_access_token(identity=user.id, expires_delta=datetime.timedelta(days=1))
+        token = create_access_token(identity=str(user.id), expires_delta=datetime.timedelta(days=1))
         return jsonify({
             'success': True,
             'message': 'User registered successfully',
@@ -72,7 +72,7 @@ def login():
         user = User.query.filter((User.email == identifier) | (User.username == identifier)).first()
         if not user or not user.check_password(password):
             return jsonify(success=False, message='Invalid credentials'), 401
-        token = create_access_token(identity=user.id, expires_delta=datetime.timedelta(days=1))
+        token = create_access_token(identity=str(user.id), expires_delta=datetime.timedelta(days=1))
         return jsonify(success=True, token=token, user={
             'id': user.id,
             'username': user.username,
@@ -144,7 +144,7 @@ def register():
         if not data or not data.get('email'):
             return jsonify(success=False, error='Email is required'), 400
 
-        token = create_access_token(identity=data['email'], expires_delta=datetime.timedelta(days=1))
+        token = create_access_token(identity=str(data['email']), expires_delta=datetime.timedelta(days=1))
         return jsonify(success=True, token=token, user={'email': data['email'], 'name': data.get('name', '')})
     except Exception as e:
         print(f"Register error: {e}")

@@ -56,24 +56,69 @@ def get_media_type(filename):
 @posts_bp.route('/posts', methods=['POST'])
 @jwt_required()
 def create_post():
-    data = request.get_json() or {}
-    content = data.get('content', '').strip()
-    if not content:
-        return jsonify({'error': 'Post content is required.'}), 400
-    tags = data.get('tags', [])
-    visibility = data.get('visibility', 'public')
-    media = data.get('media', [])
-    user_id = get_jwt_identity()
-    new_post = Post(
-        user_id=user_id,
-        content=content,
-        tags=tags,
-        visibility=visibility,
-        media=media
-    )
-    db.session.add(new_post)
-    db.session.commit()
-    return jsonify({'success': True, 'post': new_post.serialize()}), 201
+    if request.content_type and request.content_type.startswith('multipart/form-data'):
+        # Handle multipart form data (file upload)
+        content = request.form.get('content', '').strip()
+        if not content:
+            return jsonify({'success': False, 'message': 'Post content is required.'}), 400
+        tags = request.form.get('tags')
+        tags = json.loads(tags) if tags else []
+        visibility = request.form.get('visibility', 'public')
+        category = request.form.get('category')
+        media_files = request.files.getlist('media') or []
+        media_url = None
+        media_type = None
+        if media_files:
+            file = media_files[0]
+            if file and allowed_file(file.filename):
+                ext = file.filename.rsplit('.', 1)[1].lower()
+                unique_id = str(uuid.uuid4())
+                filename = f'post_{get_jwt_identity()}_{unique_id}.{ext}'
+                upload_dir = os.path.join(current_app.root_path, 'static', 'uploads', 'posts')
+                os.makedirs(upload_dir, exist_ok=True)
+                filepath = os.path.join(upload_dir, filename)
+                file.save(filepath)
+                media_url = f'/static/uploads/posts/{filename}'
+                media_type = get_media_type(filename)
+            else:
+                return jsonify({'success': False, 'message': 'Invalid file type.'}), 400
+        user_id = get_jwt_identity()
+        new_post = Post(
+            user_id=user_id,
+            content=content,
+            media_url=media_url,
+            media_type=media_type,
+            visibility=visibility,
+            category=category
+        )
+        new_post.set_tags(tags)
+        db.session.add(new_post)
+        db.session.commit()
+        return jsonify({'success': True, 'post': new_post.to_dict()}), 201
+    else:
+        # Handle JSON
+        data = request.get_json() or {}
+        content = data.get('content', '').strip()
+        if not content:
+            return jsonify({'success': False, 'message': 'Post content is required.'}), 400
+        tags = data.get('tags', [])
+        visibility = data.get('visibility', 'public')
+        category = data.get('category')
+        media_url = data.get('media_url')
+        media_type = data.get('media_type')
+        user_id = get_jwt_identity()
+        new_post = Post(
+            user_id=user_id,
+            content=content,
+            media_url=media_url,
+            media_type=media_type,
+            visibility=visibility,
+            category=category
+        )
+        new_post.set_tags(tags)
+        db.session.add(new_post)
+        db.session.commit()
+        return jsonify({'success': True, 'post': new_post.to_dict()}), 201
 
 @posts_bp.route('/posts', methods=['GET'])
 def get_posts():
@@ -214,3 +259,13 @@ def like_post(post_id):
     except Exception as e:
         print(f'[POST /api/posts/{post_id}/like] Error: {e}')
         return jsonify(success=False, message='Failed to like post.'), 500 
+
+@posts_bp.route('/posts', methods=['OPTIONS'])
+def posts_options():
+    from flask import make_response
+    response = make_response()
+    response.headers['Access-Control-Allow-Methods'] = 'POST,GET,OPTIONS'
+    response.headers['Access-Control-Allow-Headers'] = 'Content-Type,Authorization'
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    response.headers['Access-Control-Allow-Credentials'] = 'true'
+    return response, 200 

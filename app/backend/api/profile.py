@@ -246,6 +246,8 @@ def profile_options():
     response = make_response()
     response.headers['Access-Control-Allow-Methods'] = 'GET,PUT,POST,OPTIONS'
     response.headers['Access-Control-Allow-Headers'] = 'Content-Type,Authorization'
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    response.headers['Access-Control-Allow-Credentials'] = 'true'
     return response
 
 @profile_bp.route('/profile/image', methods=['OPTIONS'])
@@ -253,4 +255,6 @@ def profile_image_options():
     response = make_response()
     response.headers['Access-Control-Allow-Methods'] = 'POST,OPTIONS'
     response.headers['Access-Control-Allow-Headers'] = 'Content-Type,Authorization'
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    response.headers['Access-Control-Allow-Credentials'] = 'true'
     return response 
