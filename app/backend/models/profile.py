@@ -5,6 +5,7 @@ class Profile(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), unique=True, nullable=False)
     avatar = db.Column(db.String(256), default=None)
+    banner = db.Column(db.String(256), default=None)
     title = db.Column(db.String(120), default='')
     bio = db.Column(db.Text, default='')
     location = db.Column(db.String(120), default='')
@@ -21,6 +22,7 @@ class Profile(db.Model):
             'id': self.id,
             'user_id': self.user_id,
             'avatar': self.avatar,
+            'banner': self.banner,
             'title': self.title,
             'bio': self.bio,
             'location': self.location,

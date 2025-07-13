@@ -224,6 +224,52 @@ def upload_avatar():
         print(f"[UPLOAD] Error uploading avatar: {e}")
         return jsonify(success=False, message='Image upload failed. Please try again.'), 500
 
+@profile_bp.route('/profile/banner', methods=['POST'])
+@jwt_required()
+def upload_banner():
+    try:
+        user_id = get_jwt_identity()
+        user = User.query.get(user_id)
+        if not user:
+            print('[UPLOAD] User not found')
+            return jsonify(success=False, message='User not found'), 404
+        profile = Profile.query.filter_by(user_id=user.id).first()
+        if not profile:
+            profile = Profile(user_id=user.id)
+            db.session.add(profile)
+            db.session.commit()
+        file = request.files.get('file')
+        if not file:
+            print('[UPLOAD] No file part in request')
+            return jsonify(success=False, message='No file part'), 422
+        if file.filename == '':
+            print('[UPLOAD] No selected file')
+            return jsonify(success=False, message='No selected file'), 400
+        if not allowed_file(file.filename):
+            print('[UPLOAD] Invalid file type:', file.filename)
+            return jsonify(success=False, message='Invalid file type. Only jpg/png allowed.'), 400
+        file.seek(0, os.SEEK_END)
+        file_length = file.tell()
+        file.seek(0)
+        if file_length > MAX_IMAGE_SIZE_MB * 1024 * 1024:
+            print('[UPLOAD] File too large:', file_length)
+            return jsonify(success=False, message='File too large. Max 5MB.'), 400
+        # Save banner as-is (no compression)
+        unique_id = str(uuid.uuid4())
+        filename = f"banner_{user.id}_{unique_id}.jpg"
+        upload_dir = os.path.join(current_app.root_path, 'static', 'uploads')
+        os.makedirs(upload_dir, exist_ok=True)
+        filepath = os.path.join(upload_dir, filename)
+        file.save(filepath)
+        profile.banner = f'/static/uploads/{filename}'
+        db.session.commit()
+        banner_url = f"/api/uploads/{filename}"
+        print('[UPLOAD] Banner uploaded:', banner_url)
+        return jsonify(success=True, url=banner_url)
+    except Exception as e:
+        print(f"[UPLOAD] Error uploading banner: {e}")
+        return jsonify(success=False, message='Banner upload failed. Please try again.'), 500
+
 @profile_bp.route('/profile/resume', methods=['GET'])
 def download_resume():
     resume_path = os.path.join(current_app.root_path, 'static', 'resume', 'resume.pdf')
@@ -252,6 +298,15 @@ def profile_options():
 
 @profile_bp.route('/profile/image', methods=['OPTIONS'])
 def profile_image_options():
+    response = make_response()
+    response.headers['Access-Control-Allow-Methods'] = 'POST,OPTIONS'
+    response.headers['Access-Control-Allow-Headers'] = 'Content-Type,Authorization'
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    response.headers['Access-Control-Allow-Credentials'] = 'true'
+    return response 
+
+@profile_bp.route('/profile/banner', methods=['OPTIONS'])
+def banner_options():
     response = make_response()
     response.headers['Access-Control-Allow-Methods'] = 'POST,OPTIONS'
     response.headers['Access-Control-Allow-Headers'] = 'Content-Type,Authorization'

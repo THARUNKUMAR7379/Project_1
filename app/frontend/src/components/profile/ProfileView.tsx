@@ -111,15 +111,9 @@ const ProfileView: React.FC = () => {
     }
     setBannerUploading(true);
     try {
-      console.log('[FRONTEND] Uploading banner file:', file);
-      console.log('[FRONTEND] Banner file name:', file.name);
-      console.log('[FRONTEND] Banner file type:', file.type);
-      console.log('[FRONTEND] Banner file size:', file.size);
       const formData = new FormData();
       formData.append('file', file);
-      formData.append('type', 'banner');
-      console.log('[FRONTEND] Banner FormData created');
-      const response = await fetch('http://localhost:5000/api/profile/image', {
+      const response = await fetch('http://localhost:5000/api/profile/banner', {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` },
         body: formData,

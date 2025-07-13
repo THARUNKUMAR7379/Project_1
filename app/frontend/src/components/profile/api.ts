@@ -22,7 +22,13 @@ export const profileApi = {
       let errorMessage = data.message || 'Failed to get profile';
       return { success: false, message: errorMessage };
     }
-    
+    // Patch: always return { success, profile } for AuthContext
+    if (data && data.user && data.user.profile) {
+      return { ...data, profile: data.user.profile, success: true };
+    }
+    if (data && data.profile) {
+      return { ...data, profile: data.profile, success: true };
+    }
     return { ...data, success: true };
   },
 
