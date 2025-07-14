@@ -10,7 +10,7 @@ class Config:
     if DATABASE_URL and DATABASE_URL.startswith('postgres://'):
         DATABASE_URL = DATABASE_URL.replace('postgres://', 'postgresql://', 1)
     
-    SQLALCHEMY_DATABASE_URI = DATABASE_URL or 'mysql://root:Tharun%40123@localhost/prok_db'
+    SQLALCHEMY_DATABASE_URI = DATABASE_URL or 'mysql://root:password@localhost/prok_db?charset=utf8mb4'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     
     # JWT
