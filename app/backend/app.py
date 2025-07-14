@@ -6,7 +6,8 @@ from extensions import db, migrate, jwt
 def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
-    CORS(app, supports_credentials=True, resources={r"/*": {"origins": "*"}})
+    # Restrict CORS to only allow the deployed frontend domain
+    CORS(app, supports_credentials=True, resources={r"/*": {"origins": ["https://prok-frontend-e44d.onrender.com"]}})
     db.init_app(app)
     migrate.init_app(app, db)
     jwt.init_app(app)
