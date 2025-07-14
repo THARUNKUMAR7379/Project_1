@@ -23,7 +23,8 @@ export const authApi = {
           identifier: credentials.identifier,
           password: credentials.password
         }),
-        signal: controller.signal
+        signal: controller.signal,
+        credentials: 'include', // Always send cookies
       });
       
       clearTimeout(timeoutId);
@@ -76,7 +77,8 @@ export const authApi = {
           'Accept': 'application/json'
         },
         body: JSON.stringify(userData),
-        signal: controller.signal
+        signal: controller.signal,
+        credentials: 'include',
       });
       
       clearTimeout(timeoutId);
@@ -123,7 +125,8 @@ export const authApi = {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        signal: controller.signal
+        signal: controller.signal,
+        credentials: 'include',
       });
       
       clearTimeout(timeoutId);
@@ -168,7 +171,8 @@ export const authApi = {
           'Accept': 'application/json'
         },
         body: JSON.stringify({ email }),
-        signal: controller.signal
+        signal: controller.signal,
+        credentials: 'include',
       });
       
       clearTimeout(timeoutId);

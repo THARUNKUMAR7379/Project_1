@@ -9,8 +9,8 @@ class Config:
     DATABASE_URL = os.environ.get('DATABASE_URL')
     if DATABASE_URL and DATABASE_URL.startswith('postgres://'):
         DATABASE_URL = DATABASE_URL.replace('postgres://', 'postgresql://', 1)
-    
-    SQLALCHEMY_DATABASE_URI = DATABASE_URL or 'mysql://root:password@localhost/prok_db?charset=utf8mb4'
+    # Fallback to MySQL local if DATABASE_URL is not set
+    SQLALCHEMY_DATABASE_URI = DATABASE_URL or 'mysql://root:Tharun@123@localhost/prok_db?charset=utf8mb4'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     
     # JWT

@@ -1,30 +1,27 @@
-const API_URL = 'http://localhost:5000';
+// Use environment variable for API URL
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
-export const jobsApi = {
+export const jobApi = {
   getJobs: async () => {
     const response = await fetch(`${API_URL}/jobs`, {
-      headers: {
-        'Authorization': `Bearer ${localStorage.getItem('token')}`,
-      },
+      credentials: 'include',
     });
     return response.json();
   },
-
-  getJob: async (jobId: number) => {
+  getJob: async (jobId: string) => {
     const response = await fetch(`${API_URL}/jobs/${jobId}`, {
-      headers: {
-        'Authorization': `Bearer ${localStorage.getItem('token')}`,
-      },
+      credentials: 'include',
     });
     return response.json();
   },
-
-  applyForJob: async (jobId: number) => {
+  applyToJob: async (jobId: string, application: any) => {
     const response = await fetch(`${API_URL}/jobs/${jobId}/apply`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        'Content-Type': 'application/json',
       },
+      body: JSON.stringify(application),
+      credentials: 'include',
     });
     return response.json();
   },

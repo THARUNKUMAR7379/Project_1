@@ -19,7 +19,7 @@ app.config.from_object(Config)
 app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET', 'super-secret')
 
 # Enable CORS for development and production
-ALLOWED_ORIGINS = os.getenv('ALLOWED_ORIGINS', 'http://localhost:5173,http://127.0.0.1:5173,https://your-frontend-url.onrender.com').split(',')
+ALLOWED_ORIGINS = os.getenv('ALLOWED_ORIGINS', 'http://localhost:5173,http://127.0.0.1:5173,https://prok-frontend-e44d.onrender.com').split(',')
 
 CORS(app,
      origins=ALLOWED_ORIGINS,

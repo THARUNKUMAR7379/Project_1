@@ -1,4 +1,5 @@
-const API_URL = 'http://localhost:5000';
+// Use environment variable for API URL
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 export const profileApi = {
   getProfile: async (token: string) => {
@@ -8,7 +9,8 @@ export const profileApi = {
       headers: { 
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`
-      }
+      },
+      credentials: 'include', // Always send cookies
     });
     
     let data;
@@ -34,13 +36,14 @@ export const profileApi = {
 
   updateProfile: async (profileData: any, token: string) => {
     console.log('[profileApi] Updating profile...');
-    const response = await fetch('http://localhost:5000/api/profile', {
+    const response = await fetch(`${API_URL}/api/profile`, {
       method: 'PUT',
       headers: { 
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`
       },
-      body: JSON.stringify(profileData)
+      body: JSON.stringify(profileData),
+      credentials: 'include',
     });
     
     let data;
@@ -63,12 +66,13 @@ export const profileApi = {
     const formData = new FormData();
     formData.append('file', file); // <-- change 'avatar' to 'file'
     
-    const response = await fetch('http://localhost:5000/api/profile/image', {
+    const response = await fetch(`${API_URL}/api/profile/image`, {
       method: 'POST',
       headers: { 
         'Authorization': `Bearer ${token}`
       },
-      body: formData
+      body: formData,
+      credentials: 'include',
     });
     
     let data;

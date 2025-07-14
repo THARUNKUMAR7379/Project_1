@@ -1,4 +1,5 @@
-const API_URL = 'http://localhost:5000';
+// Use environment variable for API URL
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 export const feedApi = {
   getFeed: async () => {
@@ -6,6 +7,7 @@ export const feedApi = {
       headers: {
         'Authorization': `Bearer ${localStorage.getItem('token')}`,
       },
+      credentials: 'include',
     });
     return response.json();
   },
@@ -15,6 +17,7 @@ export const feedApi = {
       headers: {
         'Authorization': `Bearer ${localStorage.getItem('token')}`,
       },
+      credentials: 'include',
     });
     return response.json();
   },
