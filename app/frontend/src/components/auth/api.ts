@@ -52,7 +52,7 @@ export const authApi = {
       console.error('[authApi] login error:', error);
       
       if (error.name === 'AbortError') {
-        return { success: false, message: 'Request timeout. Please try again.' };
+        return { success: false, message: 'Request timeout after 20 seconds. Please try again.' };
       }
       
       return { success: false, message: error.message || 'Network error' };
@@ -65,8 +65,8 @@ export const authApi = {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => {
       controller.abort();
-      console.error('[authApi] Signup request timeout after 10 seconds');
-    }, 10000);
+      console.error('[authApi] Signup request timeout after 20 seconds');
+    }, 20000);
     
     try {
       const response = await fetch(`${API_URL}/api/auth/signup`, {
@@ -102,7 +102,7 @@ export const authApi = {
       console.error('[authApi] signup error:', error);
       
       if (error.name === 'AbortError') {
-        return { success: false, message: 'Request timeout. Please try again.' };
+        return { success: false, message: 'Request timeout after 20 seconds. Please try again.' };
       }
       
       return { success: false, message: error.message || 'Network error' };
