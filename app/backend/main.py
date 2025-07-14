@@ -48,6 +48,14 @@ app.register_blueprint(messaging_bp)
 def home():
     return jsonify({'message': 'Server is running!', 'status': 'ok'})
 
+@app.route('/health')
+def health():
+    return jsonify({'status': 'ok'})
+
+@app.before_first_request
+def log_startup():
+    print('🚀 Flask app has started and is ready to serve requests.')
+
 def setup_database():
     """Setup database tables"""
     with app.app_context():
