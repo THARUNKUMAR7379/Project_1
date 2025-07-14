@@ -14,7 +14,7 @@ const ProfileView: React.FC = () => {
   const [avatarPreview, setAvatarPreview] = useState(profile?.avatar || '');
   const avatarInputRef = useRef<HTMLInputElement>(null);
   const [bannerUploading, setBannerUploading] = useState(false);
-  const [bannerPreview, setBannerPreview] = useState(profile?.banner || '');
+  const [bannerPreview, setBannerPreview] = useState((profile && 'banner' in profile && typeof profile.banner === 'string') ? profile.banner : '');
   const bannerInputRef = useRef<HTMLInputElement>(null);
   const [loading, setLoading] = useState(true);
 
@@ -166,7 +166,7 @@ const ProfileView: React.FC = () => {
       {/* Banner with upload */}
       <div className="relative group" {...getBannerRootProps()}>
         <img
-          src={getImageUrl(bannerPreview || profile?.banner) || '/default-banner.jpg'}
+          src={getImageUrl(bannerPreview || (profile && 'banner' in profile && typeof profile.banner === 'string' ? profile.banner : '')) || '/default-banner.jpg'}
           alt="Banner"
           className="w-full h-48 object-cover transition-opacity duration-200 rounded-b-none rounded-t-xl border-b-4 border-gray-900"
           style={{ opacity: bannerUploading ? 0.5 : 1 }}

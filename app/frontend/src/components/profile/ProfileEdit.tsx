@@ -35,7 +35,7 @@ const ProfileEdit = () => {
     location: profile?.location || '',
     address: profile?.address || '',
     avatar: profile?.avatar || '',
-    banner: profile?.banner || '',
+    banner: (profile && 'banner' in profile && typeof profile.banner === 'string') ? profile.banner : '',
     skills: profile?.skills || [],
     socials: { 
       linkedin: profile?.socials?.linkedin || '',
@@ -73,7 +73,7 @@ const ProfileEdit = () => {
         location: profile.location || '',
         address: profile.address || '',
         avatar: profile.avatar || '',
-        banner: profile.banner || '',
+        banner: (profile && 'banner' in profile && typeof profile.banner === 'string') ? profile.banner : '',
         skills: profile.skills || [],
         socials: { 
           linkedin: profile.socials?.linkedin || '',
@@ -355,7 +355,7 @@ const ProfileEdit = () => {
               type="text"
               name="skills"
               value={Array.isArray(form.skills) ? form.skills.join(', ') : ''}
-              onChange={(e) => setForm((prev) => ({ ...prev, skills: e.target.value.split(',').map((s: string) => s.trim()).filter(Boolean) }))}
+              onChange={(e) => setForm((prev) => ({ ...prev, skills: typeof e.target.value === 'string' ? e.target.value.split(',').map((s: string) => s.trim()).filter(Boolean) : [] }))}
               onBlur={() => setTouched((prev: any) => ({ ...prev, skills: true }))}
               className={`w-full px-3 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-cyan-400 bg-black/60 text-white ${errors.skills && touched.skills ? 'border-pink-500' : 'border-white/20'}`}
               placeholder="Comma separated (e.g. React, Node.js)"
