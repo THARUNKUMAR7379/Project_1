@@ -225,7 +225,13 @@ const ProfileEdit = () => {
         location: form.location || '',
         address: form.address || '',
         avatar: form.avatar || '',
-        skills: Array.isArray(form.skills) ? form.skills : (typeof form.skills === 'string' ? form.skills.split(',').map((s: string) => s.trim()).filter(Boolean) : []),
+        // --- FINAL FIX for TS2339: Property 'split' does not exist on type 'never' ---
+        // Explicitly cast form.skills to string before split, only if it's a string, otherwise default to empty array.
+        skills: Array.isArray(form.skills)
+          ? form.skills
+          : (typeof form.skills === 'string' && form.skills
+              ? (form.skills as string).split(',').map((s: string) => s.trim()).filter(Boolean)
+              : []),
         socials: typeof form.socials === 'object' && form.socials !== null ? form.socials : {},
         experiences: Array.isArray(form.experiences) ? form.experiences : [],
         education: Array.isArray(form.education) ? form.education : [],
@@ -266,8 +272,10 @@ const ProfileEdit = () => {
           {/* Show all backend errors at the top */}
           {submitStatus === 'error' && errors && typeof errors === 'object' && Object.keys(errors).length > 0 && (
             <div className="mb-4 p-3 bg-pink-500/10 border border-pink-400/30 rounded-lg text-pink-400 text-center">
+              {/* FIX for TS2322: Type 'unknown' is not assignable to type 'ReactNode' */}
+              {/* Ensure msg is string or renderable, fallback to JSON.stringify for safety */}
               {Object.entries(errors).map(([field, msg]) => (
-                <div key={field}>{field}: {msg}</div>
+                <div key={field}>{field}: {typeof msg === 'string' ? msg : JSON.stringify(msg)}</div>
               ))}
             </div>
           )}
