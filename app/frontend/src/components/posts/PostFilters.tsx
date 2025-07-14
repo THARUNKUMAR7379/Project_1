@@ -12,15 +12,15 @@ export interface PostFilters {
 
 interface PostFiltersProps {
   filters: PostFilters;
-  onFiltersChange: (filters: PostFilters) => void;
+  onChange: (newFilters: PostFilters) => void;
   categories: string[];
   popularTags: string[];
-  loading?: boolean;
+  loading: boolean;
 }
 
 const PostFilters: React.FC<PostFiltersProps> = ({
   filters,
-  onFiltersChange,
+  onChange,
   categories,
   popularTags,
   loading = false
@@ -28,7 +28,7 @@ const PostFilters: React.FC<PostFiltersProps> = ({
   const debouncedSearch = useDebounce(filters.search, 500);
 
   const handleFilterChange = (key: keyof PostFilters, value: any) => {
-    onFiltersChange({
+    onChange({
       ...filters,
       [key]: value
     });
@@ -42,7 +42,7 @@ const PostFilters: React.FC<PostFiltersProps> = ({
   };
 
   const clearFilters = () => {
-    onFiltersChange({
+    onChange({
       search: '',
       category: '',
       visibility: '',

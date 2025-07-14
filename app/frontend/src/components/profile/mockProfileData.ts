@@ -10,9 +10,19 @@ export const mockUser: User = {
 export const mockProfile: Profile = {
   id: 1,
   user_id: 1,
+  avatar: '/default-avatar.jpg',
+  banner: '/default-banner.jpg',
+  name: 'Jane Doe',
+  title: 'Full Stack Developer',
   bio: 'Full Stack Developer passionate about building impactful products. Lover of React, Node.js, and beautiful UI.',
   location: 'San Francisco, CA',
+  address: '123 Main St, San Francisco, CA',
   skills: ['React', 'TypeScript', 'Node.js', 'GraphQL', 'UI/UX'],
+  socials: {
+    linkedin: 'https://linkedin.com/in/janedoe',
+    github: 'https://github.com/janedoe',
+    twitter: 'https://twitter.com/janedoe'
+  },
   experiences: [
     {
       id: 1,
