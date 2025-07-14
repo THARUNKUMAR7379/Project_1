@@ -20,7 +20,7 @@ const FeedDashboard: React.FC = () => {
           <section className="flex-1 flex flex-col gap-6">
             {/* Profile section with avatar, name, and Edit Profile modal */}
             {/* <ProfileSection /> */}
-            <PostFilters filters={{ search: '', category: '', visibility: '', tags: [], sortBy: 'created_at', sortOrder: 'desc' }} onFiltersChange={() => {}} categories={[]} popularTags={[]} />
+            <PostFilters filters={{ search: '', category: '', visibility: '', tags: [], sortBy: 'created_at', sortOrder: 'desc' }} onChange={() => {}} categories={[]} popularTags={[]} loading={false} />
             <PostList showFilters={false} />
             {/* Remove PostCreate from feed */}
           </section>
