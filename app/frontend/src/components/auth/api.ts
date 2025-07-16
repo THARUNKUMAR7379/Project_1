@@ -72,7 +72,7 @@ export const authApi = {
       `${API_URL}/api/auth/signup`,
       {
         method: 'POST',
-        headers: {
+        headers: { 
           'Content-Type': 'application/json',
           'Accept': 'application/json',
         },
