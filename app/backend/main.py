@@ -50,7 +50,12 @@ def home():
 
 @app.route('/health')
 def health():
-    return jsonify({'status': 'ok'})
+    try:
+        db.session.execute('SELECT 1')
+        return jsonify({'status': 'ok'}), 200
+    except Exception as e:
+        print(f"[HEALTH ERROR] {e}")
+        return jsonify({'status': 'error', 'error': str(e)}), 500
 
 # REMOVED: @app.before_first_request (deprecated, breaks gunicorn)
 # def log_startup():
@@ -59,8 +64,12 @@ def health():
 def setup_database():
     """Setup database tables"""
     with app.app_context():
-        db.create_all()
-        print("✅ Database tables created successfully!")
+        try:
+            db.create_all()
+            print("✅ Database tables created successfully!")
+        except Exception as e:
+            print(f"❌ Database setup failed: {e}")
+            import traceback; traceback.print_exc()
 
 # Create a function to initialize the app
 def create_app():

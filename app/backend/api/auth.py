@@ -76,17 +76,24 @@ def login():
         password = data.get('password')
         print(f"[LOGIN DEBUG] identifier: {identifier}, password: {'***' if password else None}")
         if not identifier or not password:
+            print("[LOGIN ERROR] Missing identifier or password")
             return jsonify(success=False, message='Username/Email and password required'), 400
         user = User.query.filter((User.email == identifier) | (User.username == identifier)).first()
+        if not user:
+            print(f"[LOGIN ERROR] User not found for identifier: {identifier}")
+        elif not user.check_password(password):
+            print(f"[LOGIN ERROR] Invalid password for user: {identifier}")
         if not user or not user.check_password(password):
             return jsonify(success=False, message='Invalid credentials'), 401
         token = create_access_token(identity=str(user.id), expires_delta=datetime.timedelta(days=1))
+        print(f"[LOGIN SUCCESS] User {user.id} logged in")
         return jsonify(success=True, token=token, user={
             'id': user.id,
             'username': user.username,
             'email': user.email
         }), 200
     except Exception as e:
+        import traceback
         print(f"[Backend] Login error: {e}")
         traceback.print_exc()
         return jsonify(success=False, message='Internal server error'), 500

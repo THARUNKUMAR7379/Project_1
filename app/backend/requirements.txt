@@ -7,6 +7,4 @@ python-dotenv==1.0.0
 psycopg2-binary==2.9.7
 gunicorn==21.2.0
 Werkzeug==2.3.7
-reportlab==4.0.8  # Use a wheel to avoid slow source build if possible
-wheel  # Ensures pip can use wheels for all packages
-# Removed: pytest, black, flake8 (dev-only, not needed in production) 
+# Production only, no dev/test packages 

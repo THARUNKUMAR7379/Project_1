@@ -17,12 +17,15 @@ pip install --find-links=.wheels --cache-dir=$PIP_CACHE_DIR -r requirements.txt
 echo "🚀 Starting build process..."
 
 # Set up database
-echo "🗄️ Setting up database..."
+# For dev: create tables; for prod: run migrations if needed
 python -c "
 from main import app, db
 with app.app_context():
-    db.create_all()
-    print('✅ Database tables created successfully!')
+    try:
+        db.create_all()
+        print('✅ Database tables created successfully!')
+    except Exception as e:
+        print(f'❌ Database setup failed: {e}')
 "
 
 echo "✅ Build completed successfully!" 
