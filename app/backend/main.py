@@ -52,9 +52,9 @@ def home():
 def health():
     return jsonify({'status': 'ok'})
 
-@app.before_first_request
-def log_startup():
-    print('🚀 Flask app has started and is ready to serve requests.')
+# REMOVED: @app.before_first_request (deprecated, breaks gunicorn)
+# def log_startup():
+#     print('🚀 Flask app has started and is ready to serve requests.')
 
 def setup_database():
     """Setup database tables"""
@@ -70,7 +70,7 @@ def create_app():
 if __name__ == '__main__':
     # Setup database tables
     setup_database()
-    
+    print('🚀 Flask app has started and is ready to serve requests.')
     # Run the app
     debug_mode = os.environ.get('FLASK_ENV') == 'development'
     app.run(debug=debug_mode, host='0.0.0.0', port=int(os.environ.get('PORT', 5000))) 
