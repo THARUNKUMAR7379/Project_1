@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from extensions import db, jwt, limiter
+from extensions import db, jwt
 from models.user import User
 from flask_jwt_extended import create_access_token
 import re
