@@ -5,6 +5,7 @@ from models.user import User
 from extensions import db
 import datetime
 from flask_cors import CORS
+import traceback
 
 auth_bp = Blueprint('auth', __name__, url_prefix='/api/auth')
 
@@ -45,6 +46,7 @@ def signup():
     except Exception as e:
         db.session.rollback()
         print(f"Signup error: {e}")
+        traceback.print_exc()
         return jsonify({'success': False, 'message': 'Internal server error'}), 500
 
 @auth_bp.route('/login', methods=['OPTIONS'])
@@ -86,6 +88,7 @@ def login():
         }), 200
     except Exception as e:
         print(f"[Backend] Login error: {e}")
+        traceback.print_exc()
         return jsonify(success=False, message='Internal server error'), 500
 
 @auth_bp.route('/profile', methods=['GET'])
