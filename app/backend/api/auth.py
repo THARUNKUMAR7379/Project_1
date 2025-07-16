@@ -15,18 +15,24 @@ auth_bp = Blueprint('auth', __name__, url_prefix='/api/auth')
 @auth_bp.route('/signup', methods=['POST'])
 def signup():
     try:
-        data = request.get_json()
+        data = request.get_json(silent=True)
+        if not data:
+            print("[SIGNUP ERROR] No JSON body received")
+            return jsonify({'success': False, 'message': 'Invalid or missing JSON payload'}), 400
         username = data.get('username')
         email = data.get('email')
         password = data.get('password')
         if not username or not email or not password:
+            print("[SIGNUP ERROR] Missing username/email/password")
             return jsonify({'success': False, 'message': 'Username, email and password required'}), 400
         if User.query.filter_by(email=email).first():
+            print(f"[SIGNUP ERROR] Email already registered: {email}")
             return jsonify({'success': False, 'message': 'Email already registered'}), 400
         if User.query.filter_by(username=username).first():
+            print(f"[SIGNUP ERROR] Username already taken: {username}")
             return jsonify({'success': False, 'message': 'Username already taken'}), 400
-        # Password complexity check
         if not User.is_password_complex(password):
+            print("[SIGNUP ERROR] Password not complex enough")
             return jsonify({'success': False, 'message': 'Password must be at least 8 chars, with upper, lower, digit.'}), 400
         user = User(username=username, email=email)
         user.set_password(password)
@@ -45,7 +51,7 @@ def signup():
         }), 201
     except Exception as e:
         db.session.rollback()
-        print(f"Signup error: {e}")
+        print(f"[SIGNUP ERROR] Exception: {e}")
         traceback.print_exc()
         return jsonify({'success': False, 'message': 'Internal server error'}), 500
 
@@ -70,7 +76,10 @@ def login():
     if request.method == 'OPTIONS':
         return '', 200
     try:
-        data = request.get_json()
+        data = request.get_json(silent=True)
+        if not data:
+            print("[LOGIN ERROR] No JSON body received")
+            return jsonify(success=False, message='Invalid or missing JSON payload'), 400
         print(f"[LOGIN DEBUG] Received data: {data}")
         identifier = data.get('identifier') or data.get('username') or data.get('email')
         password = data.get('password')
@@ -93,8 +102,7 @@ def login():
             'email': user.email
         }), 200
     except Exception as e:
-        import traceback
-        print(f"[Backend] Login error: {e}")
+        print(f"[LOGIN ERROR] Exception: {e}")
         traceback.print_exc()
         return jsonify(success=False, message='Internal server error'), 500
 

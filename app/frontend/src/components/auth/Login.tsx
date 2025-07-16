@@ -46,11 +46,19 @@ const Login: React.FC = () => {
         if (result.success) {
           navigate('/profile');
         } else {
-          setErrors({ api: result.message || 'Invalid credentials. Please try again.' });
+          if (result.message && result.message.toLowerCase().includes('timeout')) {
+            setErrors({ api: 'Waking backend... Please wait a few seconds and try again.' });
+          } else if (result.message && result.message.toLowerCase().includes('internal server error')) {
+            setErrors({ api: 'Server error. Please try again later.' });
+          } else if (result.message && result.message.toLowerCase().includes('not found')) {
+            setErrors({ api: 'Login service unavailable. Please try again later.' });
+          } else {
+            setErrors({ api: result.message || 'Invalid credentials. Please try again.' });
+          }
         }
       } catch (err: any) {
         console.error('Login error:', err);
-        setErrors({ api: err.message || 'Network error. Please try again.' });
+        setErrors({ api: 'Network error or backend is waking up. Please wait and try again.' });
       } finally {
         setLoading(false);
       }

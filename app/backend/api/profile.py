@@ -12,7 +12,8 @@ from flask_cors import CORS
 from extensions import db
 
 profile_bp = Blueprint('profile', __name__, url_prefix='/api')
-CORS(profile_bp, origins=["http://localhost:5173", "http://localhost:5174"], supports_credentials=True)
+# REMOVE per-blueprint CORS (handled globally in main.py)
+# CORS(profile_bp, origins=["http://localhost:5173", "http://localhost:5174"], supports_credentials=True)
 
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 MAX_IMAGE_SIZE_MB = 5
@@ -42,7 +43,7 @@ def get_profile():
     user_id = get_jwt_identity()
     user = User.query.get(user_id)
     if not user:
-        return jsonify({'error': 'User not found.'}), 200
+        return jsonify({'error': 'User not found.'}), 404
     return jsonify({'success': True, 'user': user.serialize()})
 
 @profile_bp.route('/profile', methods=['PUT'])

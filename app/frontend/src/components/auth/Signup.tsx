@@ -52,11 +52,12 @@ const Signup: React.FC = () => {
           // Navigate to login page after successful signup
           navigate('/login');
         } else {
-          setErrors({ api: 'Signup failed. Please try again.' });
+          // Show better error for network/cold start
+          setErrors({ api: 'Signup failed. Backend may be waking up. Please wait and try again.' });
         }
       } catch (err: any) {
         console.error('Signup error:', err);
-        setErrors({ api: err.message || 'Network error. Please try again.' });
+        setErrors({ api: 'Network error or backend is waking up. Please wait and try again.' });
       } finally {
         setLoading(false);
       }

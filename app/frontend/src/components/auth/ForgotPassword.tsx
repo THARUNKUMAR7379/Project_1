@@ -45,11 +45,19 @@ const ForgotPassword: React.FC = () => {
         if (response.success) {
           setSuccess(true);
         } else {
-          setErrors({ api: response.message || 'Failed to send reset email' });
+          if (response.message && response.message.toLowerCase().includes('timeout')) {
+            setErrors({ api: 'Waking backend... Please wait a few seconds and try again.' });
+          } else if (response.message && response.message.toLowerCase().includes('internal server error')) {
+            setErrors({ api: 'Server error. Please try again later.' });
+          } else if (response.message && response.message.toLowerCase().includes('not found')) {
+            setErrors({ api: 'Forgot password service unavailable. Please try again later.' });
+          } else {
+            setErrors({ api: response.message || 'Failed to send reset email' });
+          }
         }
       } catch (err: any) {
         console.error('Forgot password error:', err);
-        setErrors({ api: err.message || 'Network error. Please try again.' });
+        setErrors({ api: 'Network error or backend is waking up. Please wait and try again.' });
       } finally {
         setLoading(false);
       }

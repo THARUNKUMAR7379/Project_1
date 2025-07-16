@@ -57,6 +57,15 @@ def health():
         print(f"[HEALTH ERROR] {e}")
         return jsonify({'status': 'error', 'error': str(e)}), 500
 
+@app.route('/api/health')
+def api_health():
+    try:
+        db.session.execute('SELECT 1')
+        return jsonify({'status': 'ok'}), 200
+    except Exception as e:
+        print(f"[API HEALTH ERROR] {e}")
+        return jsonify({'status': 'error', 'error': str(e)}), 500
+
 # REMOVED: @app.before_first_request (deprecated, breaks gunicorn)
 # def log_startup():
 #     print('🚀 Flask app has started and is ready to serve requests.')
