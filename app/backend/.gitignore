@@ -1,2 +1,4 @@
 .env
 __pycache__/ 
+.pip_cache/
+.wheels/ 
