@@ -262,10 +262,14 @@ def like_post(post_id):
 
 @posts_bp.route('/posts', methods=['OPTIONS'])
 def posts_options():
-    from flask import make_response
+    from flask import make_response, request
     response = make_response()
+    allowed_origin = 'https://prok-frontend-e44d.onrender.com'
+    if request.headers.get('Origin') in ['http://localhost:5173', 'http://127.0.0.1:5173', allowed_origin]:
+        response.headers['Access-Control-Allow-Origin'] = request.headers['Origin']
+    else:
+        response.headers['Access-Control-Allow-Origin'] = allowed_origin
     response.headers['Access-Control-Allow-Methods'] = 'POST,GET,OPTIONS'
     response.headers['Access-Control-Allow-Headers'] = 'Content-Type,Authorization'
-    response.headers['Access-Control-Allow-Origin'] = '*'
     response.headers['Access-Control-Allow-Credentials'] = 'true'
     return response, 200 

@@ -8,8 +8,8 @@ from flask_cors import CORS
 
 auth_bp = Blueprint('auth', __name__, url_prefix='/api/auth')
 
-# Ensure CORS for this blueprint (if not already applied globally)
-CORS(auth_bp, origins=["http://localhost:5173", "http://localhost:3000", "http://localhost:5174"], supports_credentials=True, allow_headers=["Content-Type", "Authorization"])
+# REMOVE per-blueprint CORS (handled globally in main.py)
+# CORS(auth_bp, origins=[...], supports_credentials=True, allow_headers=[...])
 
 @auth_bp.route('/signup', methods=['POST'])
 def signup():
@@ -49,9 +49,15 @@ def signup():
 
 @auth_bp.route('/login', methods=['OPTIONS'])
 def login_options():
-    from flask import make_response
+    from flask import make_response, request
     response = make_response()
-    response.headers['Access-Control-Allow-Origin'] = '*'
+    # Use the correct allowed origin for credentials
+    allowed_origin = 'https://prok-frontend-e44d.onrender.com'
+    # Optionally, allow localhost for dev
+    if request.headers.get('Origin') in ['http://localhost:5173', 'http://127.0.0.1:5173', allowed_origin]:
+        response.headers['Access-Control-Allow-Origin'] = request.headers['Origin']
+    else:
+        response.headers['Access-Control-Allow-Origin'] = allowed_origin
     response.headers['Access-Control-Allow-Methods'] = 'POST,OPTIONS'
     response.headers['Access-Control-Allow-Headers'] = 'Content-Type,Authorization'
     response.headers['Access-Control-Allow-Credentials'] = 'true'
