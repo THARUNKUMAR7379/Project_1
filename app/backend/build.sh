@@ -16,9 +16,12 @@ pip install --find-links=.wheels --cache-dir=$PIP_CACHE_DIR -r requirements.txt
 
 echo "🚀 Starting build process..."
 
-# Always run Alembic migrations to ensure DB schema is up to date
-flask db upgrade
-
-echo "✅ Database migrations applied!"
+# Only run Alembic migrations if migrations directory exists
+if [ -d "migrations" ]; then
+  flask db upgrade
+  echo "✅ Database migrations applied!"
+else
+  echo "⚠️  No migrations directory found, skipping db upgrade."
+fi
 
 echo "✅ Build completed successfully!" 

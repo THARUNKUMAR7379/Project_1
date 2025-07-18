@@ -2,27 +2,21 @@ from flask import Flask, jsonify
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 from config import Config
-from dotenv import load_dotenv
-from extensions import db  # FIX: import db from extensions, not models
+from extensions import db
 import os
 
-# Load environment variables
-load_dotenv()
-
-# Import models
-from models.user import User  # Only import User, not db
-from models.profile import Profile, Skill, Experience, Education  # Only import models, not db
+# Only load dotenv in local development
+if os.environ.get('FLASK_ENV') != 'production':
+    from dotenv import load_dotenv
+    load_dotenv()
 
 # Create Flask app
 app = Flask(__name__, static_folder='static')
 app.config.from_object(Config)
-app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET', 'super-secret')
 
-# Enable CORS for development and production
-ALLOWED_ORIGINS = os.getenv('ALLOWED_ORIGINS', 'http://localhost:5173,http://127.0.0.1:5173,https://prok-frontend-e44d.onrender.com').split(',')
-
+# Enable CORS for allowed origins
 CORS(app,
-     origins=ALLOWED_ORIGINS,
+     origins=Config.CORS_ORIGINS,
      methods=['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
      allow_headers=['Content-Type', 'Authorization', 'X-Requested-With'],
      supports_credentials=True,
@@ -30,8 +24,6 @@ CORS(app,
 
 # Initialize extensions
 jwt = JWTManager(app)
-
-# Initialize database
 db.init_app(app)
 
 # Register blueprints
@@ -43,7 +35,6 @@ app.register_blueprint(feed_bp)
 app.register_blueprint(jobs_bp)
 app.register_blueprint(messaging_bp)
 
-# Add a simple test route
 @app.route('/')
 def home():
     return jsonify({'message': 'Server is running!', 'status': 'ok'})
@@ -66,29 +57,21 @@ def api_health():
         print(f"[API HEALTH ERROR] {e}")
         return jsonify({'status': 'error', 'error': str(e)}), 500
 
-# REMOVED: @app.before_first_request (deprecated, breaks gunicorn)
-# def log_startup():
-#     print('🚀 Flask app has started and is ready to serve requests.')
-
 def setup_database():
     """Setup database tables"""
     with app.app_context():
         try:
             db.create_all()
-            print("✅ Database tables created successfully!")
+            print(" 705 Database tables created successfully!")
         except Exception as e:
-            print(f"❌ Database setup failed: {e}")
+            print(f" 74c Database setup failed: {e}")
             import traceback; traceback.print_exc()
 
-# Create a function to initialize the app
 def create_app():
-    """Application factory function"""
     return app
 
 if __name__ == '__main__':
-    # Setup database tables
     setup_database()
-    print('🚀 Flask app has started and is ready to serve requests.')
-    # Run the app
+    print(' f680 Flask app has started and is ready to serve requests.')
     debug_mode = os.environ.get('FLASK_ENV') == 'development'
     app.run(debug=debug_mode, host='0.0.0.0', port=int(os.environ.get('PORT', 5000))) 

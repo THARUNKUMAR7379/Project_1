@@ -4,13 +4,11 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from models.user import User
 from extensions import db
 import datetime
-from flask_cors import CORS
 import traceback
 
 auth_bp = Blueprint('auth', __name__, url_prefix='/api/auth')
 
-# REMOVE per-blueprint CORS (handled globally in main.py)
-# CORS(auth_bp, origins=[...], supports_credentials=True, allow_headers=[...])
+# CORS is handled globally in main.py for Render compatibility
 
 @auth_bp.route('/signup', methods=['POST'])
 def signup():
@@ -45,7 +43,7 @@ def signup():
         except Exception as db_exc:
             db.session.rollback()
             print(f"[SIGNUP ERROR] DB Exception: {db_exc}")
-            import traceback; traceback.print_exc()
+            traceback.print_exc()
             return jsonify({'success': False, 'message': 'Database error'}), 500
         token = create_access_token(identity=str(user.id), expires_delta=datetime.timedelta(days=1))
         return jsonify({
@@ -61,7 +59,7 @@ def signup():
     except Exception as e:
         db.session.rollback()
         print(f"[SIGNUP ERROR] Exception: {e}")
-        import traceback; traceback.print_exc()
+        traceback.print_exc()
         return jsonify({'success': False, 'message': 'Internal server error'}), 500
 
 @auth_bp.route('/login', methods=['OPTIONS'])
