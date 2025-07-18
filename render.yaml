@@ -5,7 +5,7 @@ services:
     pythonVersion: 3.10.12
     plan: free
     buildCommand: "bash build.sh"
-    startCommand: "flask db upgrade && gunicorn main:app --bind 0.0.0.0:$PORT --timeout 180"
+    startCommand: "gunicorn main:app --bind 0.0.0.0:$PORT --timeout 180"
     envVars:
       - key: DATABASE_URL
         sync: false
