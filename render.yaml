@@ -2,6 +2,7 @@ services:
   - type: web
     name: prok-backend
     env: python
+    pythonVersion: 3.10.12
     plan: free
     buildCommand: "bash build.sh"
     startCommand: "flask db upgrade && gunicorn main:app --bind 0.0.0.0:$PORT --timeout 180"
@@ -16,6 +17,8 @@ services:
         value: https://prok-frontend-e44d.onrender.com,http://localhost:5173
       - key: FLASK_ENV
         value: production
+      - key: PYTHON_VERSION
+        value: 3.10.12
     build:
       cwd: app/backend
     start:
