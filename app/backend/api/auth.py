@@ -15,16 +15,19 @@ auth_bp = Blueprint('auth', __name__, url_prefix='/api/auth')
 @auth_bp.route('/signup', methods=['POST'])
 def signup():
     try:
-        data = request.get_json(silent=True)
-        if not data:
-            print("[SIGNUP ERROR] No JSON body received")
+        data = request.get_json(force=False, silent=True)
+        if not data or not isinstance(data, dict):
+            print("[SIGNUP ERROR] No JSON body received or invalid JSON")
             return jsonify({'success': False, 'message': 'Invalid or missing JSON payload'}), 400
         username = data.get('username')
         email = data.get('email')
         password = data.get('password')
         if not username or not email or not password:
-            print("[SIGNUP ERROR] Missing username/email/password")
+            print(f"[SIGNUP ERROR] Missing fields: username={username}, email={email}, password={'***' if password else None}")
             return jsonify({'success': False, 'message': 'Username, email and password required'}), 400
+        if not isinstance(username, str) or not isinstance(email, str) or not isinstance(password, str):
+            print(f"[SIGNUP ERROR] Invalid types: username={type(username)}, email={type(email)}, password={type(password)}")
+            return jsonify({'success': False, 'message': 'Invalid input types'}), 400
         if User.query.filter_by(email=email).first():
             print(f"[SIGNUP ERROR] Email already registered: {email}")
             return jsonify({'success': False, 'message': 'Email already registered'}), 400
@@ -36,8 +39,14 @@ def signup():
             return jsonify({'success': False, 'message': 'Password must be at least 8 chars, with upper, lower, digit.'}), 400
         user = User(username=username, email=email)
         user.set_password(password)
-        db.session.add(user)
-        db.session.commit()
+        try:
+            db.session.add(user)
+            db.session.commit()
+        except Exception as db_exc:
+            db.session.rollback()
+            print(f"[SIGNUP ERROR] DB Exception: {db_exc}")
+            import traceback; traceback.print_exc()
+            return jsonify({'success': False, 'message': 'Database error'}), 500
         token = create_access_token(identity=str(user.id), expires_delta=datetime.timedelta(days=1))
         return jsonify({
             'success': True,
@@ -52,7 +61,7 @@ def signup():
     except Exception as e:
         db.session.rollback()
         print(f"[SIGNUP ERROR] Exception: {e}")
-        traceback.print_exc()
+        import traceback; traceback.print_exc()
         return jsonify({'success': False, 'message': 'Internal server error'}), 500
 
 @auth_bp.route('/login', methods=['OPTIONS'])
