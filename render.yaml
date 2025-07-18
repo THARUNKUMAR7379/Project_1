@@ -5,10 +5,9 @@ services:
     pythonVersion: 3.10.12
     plan: free
     buildCommand: "bash build.sh"
-    # Use the full module path so gunicorn works regardless of working directory.
-    # This works from repo root, app/, or app/backend/ as long as PYTHONPATH is set (Render default).
-    # If you get ModuleNotFoundError, check the working directory and use the correct module path.
-    startCommand: "gunicorn backend.main:app --bind 0.0.0.0:$PORT --timeout 180"
+    # The Flask app instance is defined as 'app' in main.py, so we use 'main:app'.
+    # This works because the working directory is set to app/backend below.
+    startCommand: "gunicorn main:app --bind 0.0.0.0:$PORT --timeout 180"
     envVars:
       - key: DATABASE_URL
         sync: false
