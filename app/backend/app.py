@@ -2,8 +2,11 @@ from flask import Flask
 from config import Config
 from flask_cors import CORS
 from extensions import db, migrate, jwt
+from dotenv import load_dotenv
+import os
 
 def create_app():
+    load_dotenv()  # Ensure .env is loaded
     app = Flask(__name__)
     app.config.from_object(Config)
     # Restrict CORS to only allow the deployed frontend domain
