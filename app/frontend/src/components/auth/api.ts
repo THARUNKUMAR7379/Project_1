@@ -39,7 +39,7 @@ export const authApi = {
       }
       
       if (!response.ok) {
-        let errorMessage = data.message || 'Login failed';
+        const errorMessage = data.message || 'Login failed';
         console.log('[authApi] login failed:', errorMessage);
         return { success: false, message: errorMessage };
       }
@@ -92,7 +92,7 @@ export const authApi = {
       }
       
       if (!response.ok) {
-        let errorMessage = data.message || 'Signup failed';
+        const errorMessage = data.message || 'Signup failed';
         return { success: false, message: errorMessage };
       }
       
@@ -136,7 +136,7 @@ export const authApi = {
       }
       
       if (!response.ok) {
-        let errorMessage = data.message || 'Failed to get profile';
+        const errorMessage = data.message || 'Failed to get profile';
         return { success: false, message: errorMessage };
       }
       
@@ -181,7 +181,7 @@ export const authApi = {
       }
       
       if (!response.ok) {
-        let errorMessage = data.message || 'Failed to send reset email';
+        const errorMessage = data.message || 'Failed to send reset email';
         return { success: false, message: errorMessage };
       }
       
