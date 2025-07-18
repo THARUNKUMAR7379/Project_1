@@ -52,3 +52,9 @@ export default tseslint.config({
   },
 })
 ```
+
+## Production API URL
+
+For production deployments, ensure you set the environment variable `VITE_API_URL` to your deployed backend URL (e.g. `https://prok-backend-xxxxx.onrender.com`).
+
+This ensures all API calls route to the correct backend and not localhost.

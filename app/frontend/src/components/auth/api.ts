@@ -1,4 +1,4 @@
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const API_URL = import.meta.env.VITE_API_URL || 'https://prok-backend-xxxxx.onrender.com';
 
 async function fetchWithTimeoutAndRetry(url: string, options: any, timeoutMs: number, retries = 2) {
   for (let attempt = 0; attempt <= retries; attempt++) {
