@@ -1,1 +1,4 @@
+# The Flask app instance is defined as 'app' in main.py, so we use 'main:app'.
+# If you move the app instance to another file, update this accordingly.
+# Fallback: If you get ModuleNotFoundError, check which file contains 'app = Flask(__name__)' and use 'gunicorn <filename>:app'.
 web: gunicorn main:app --bind 0.0.0.0:$PORT 
