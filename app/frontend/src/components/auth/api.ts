@@ -61,10 +61,47 @@ export const authApi = {
           identifier: credentials.identifier,
           password: credentials.password,
         }),
+<<<<<<< HEAD
         credentials: 'include',
       },
       60000 // 60 seconds
     );
+=======
+        signal: controller.signal
+      });
+      
+      clearTimeout(timeoutId);
+      console.log('[authApi] fetch completed, status:', response.status);
+      
+      let data;
+      try {
+        data = await response.json();
+        console.log('[authApi] response data:', data);
+      } catch (jsonErr) {
+        console.error('[authApi] login response not JSON:', jsonErr);
+        return { success: false, message: 'Invalid response from server' };
+      }
+      
+      if (!response.ok) {
+        const errorMessage = data.message || 'Login failed';
+        console.log('[authApi] login failed:', errorMessage);
+        return { success: false, message: errorMessage };
+      }
+      
+      console.log('[authApi] login success, response:', data);
+      // Ensure the response always has a 'success' property
+      return { ...data, success: true };
+    } catch (error: any) {
+      clearTimeout(timeoutId);
+      console.error('[authApi] login error:', error);
+      
+      if (error.name === 'AbortError') {
+        return { success: false, message: 'Request timeout after 20 seconds. Please try again.' };
+      }
+      
+      return { success: false, message: error.message || 'Network error' };
+    }
+>>>>>>> fix-e22b509-stabilize
   },
   signup: async (userData: { email: string; password: string; username: string }) => {
     console.log('[authApi] signup called with:', userData);
@@ -77,10 +114,44 @@ export const authApi = {
           'Accept': 'application/json',
         },
         body: JSON.stringify(userData),
+<<<<<<< HEAD
         credentials: 'include',
       },
       60000 // 60 seconds
     );
+=======
+        signal: controller.signal
+      });
+      
+      clearTimeout(timeoutId);
+      console.log('[authApi] signup fetch completed, status:', response.status);
+      
+      let data;
+      try {
+        data = await response.json();
+        console.log('[authApi] signup response data:', data);
+      } catch (jsonErr) {
+        console.error('[authApi] signup response not JSON:', jsonErr);
+        return { success: false, message: 'Invalid response from server' };
+      }
+      
+      if (!response.ok) {
+        const errorMessage = data.message || 'Signup failed';
+        return { success: false, message: errorMessage };
+      }
+      
+      return { ...data, success: true };
+    } catch (error: any) {
+      clearTimeout(timeoutId);
+      console.error('[authApi] signup error:', error);
+      
+      if (error.name === 'AbortError') {
+        return { success: false, message: 'Request timeout after 20 seconds. Please try again.' };
+      }
+      
+      return { success: false, message: error.message || 'Network error' };
+    }
+>>>>>>> fix-e22b509-stabilize
   },
 
   getProfile: async (token: string) => {
@@ -111,7 +182,7 @@ export const authApi = {
       }
       
       if (!response.ok) {
-        let errorMessage = data.message || 'Failed to get profile';
+        const errorMessage = data.message || 'Failed to get profile';
         return { success: false, message: errorMessage };
       }
       
@@ -157,7 +228,7 @@ export const authApi = {
       }
       
       if (!response.ok) {
-        let errorMessage = data.message || 'Failed to send reset email';
+        const errorMessage = data.message || 'Failed to send reset email';
         return { success: false, message: errorMessage };
       }
       

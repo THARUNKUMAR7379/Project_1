@@ -21,7 +21,7 @@ export const profileApi = {
     }
     
     if (!response.ok) {
-      let errorMessage = data.message || 'Failed to get profile';
+      const errorMessage = data.message || 'Failed to get profile';
       return { success: false, message: errorMessage };
     }
     // Patch: always return { success, profile } for AuthContext
@@ -54,7 +54,7 @@ export const profileApi = {
     }
     
     if (!response.ok) {
-      let errorMessage = data.message || 'Failed to update profile';
+      const errorMessage = data.message || 'Failed to update profile';
       return { success: false, message: errorMessage };
     }
     
@@ -83,7 +83,7 @@ export const profileApi = {
     }
     
     if (!response.ok) {
-      let errorMessage = data.message || 'Failed to upload avatar';
+      const errorMessage = data.message || 'Failed to upload avatar';
       return { success: false, message: errorMessage };
     }
     
