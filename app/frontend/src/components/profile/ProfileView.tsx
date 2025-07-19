@@ -152,7 +152,7 @@ const ProfileView: React.FC = () => {
   const formatDate = (dateString: string) => dateString ? new Date(dateString).toLocaleDateString('en-US', { year: 'numeric', month: 'short' }) : 'Present';
   
   // Helper to get full backend URL for images
-  const backendUrl = "http://localhost:5000";
+  const backendUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
   const getImageUrl = (url: string | null | undefined) => {
     if (!url) return '';
     return url.startsWith('http') ? url : backendUrl + url;

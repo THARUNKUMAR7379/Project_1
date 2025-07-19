@@ -7,15 +7,11 @@ class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY', secrets.token_urlsafe(32))
 
     # Database - Only use PostgreSQL in production
-    DATABASE_URL = os.environ.get('DATABASE_URL')
+    DATABASE_URL = os.getenv('DATABASE_URL')
     if DATABASE_URL and DATABASE_URL.startswith('postgres://'):
         DATABASE_URL = DATABASE_URL.replace('postgres://', 'postgresql://', 1)
-<<<<<<< HEAD
-    SQLALCHEMY_DATABASE_URI = DATABASE_URL
-=======
-    # Use SQLite for local development if DATABASE_URL is not set
-    SQLALCHEMY_DATABASE_URI = DATABASE_URL or 'sqlite:///local.db'
->>>>>>> fix-e22b509-stabilize
+
+    SQLALCHEMY_DATABASE_URI = DATABASE_URL or "postgresql://prok_database_4u16_user:3G8PYyRvb4bklOBYbQujX0hUstHc9WKy@dpg-d1t4353e5dus73e4r59g-a/prok_database_4u16"
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     # JWT
