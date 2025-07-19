@@ -3,9 +3,9 @@ import sys
 import os
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from app import create_app
-from models.user import User
-from extensions import db
+from app.backend.app import create_app
+from app.backend.models.user import User
+from app.backend.extensions import db
 from werkzeug.security import generate_password_hash
 
 def check_users():
