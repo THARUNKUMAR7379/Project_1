@@ -6,8 +6,9 @@ import os
 import io
 import uuid
 from datetime import datetime
-from models.user import User
-from models.profile import Profile, Experience, Education
+from app.backend.models.user import User
+from app.backend.models.profile import Profile, Experience, Education
+from app.backend.extensions import db
 
 profile_bp = Blueprint('profile', __name__, url_prefix='/api')
 

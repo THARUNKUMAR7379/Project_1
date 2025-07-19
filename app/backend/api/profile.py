@@ -6,10 +6,10 @@ import os
 import io
 import uuid
 from datetime import datetime
-from models.user import User
-from models.profile import Profile, Experience, Education
+from app.backend.models.profile import Profile, Experience, Education
+from app.backend.models.user import User
+from app.backend.extensions import db
 from flask_cors import CORS
-from extensions import db
 
 profile_bp = Blueprint('profile', __name__, url_prefix='/api')
 # REMOVE per-blueprint CORS (handled globally in main.py)

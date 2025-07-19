@@ -1,8 +1,8 @@
 from flask import Flask, jsonify
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
-from config import Config
-from extensions import db
+from app.backend.config import Config
+from app.backend.extensions import db
 import os
 
 # Only load dotenv in local development
@@ -28,7 +28,7 @@ jwt = JWTManager(app)
 db.init_app(app)
 
 # Register blueprints
-from api import auth_bp, profile_bp, posts_bp, feed_bp, jobs_bp, messaging_bp
+from app.backend.api import auth_bp, profile_bp, posts_bp, feed_bp, jobs_bp, messaging_bp
 app.register_blueprint(auth_bp)
 app.register_blueprint(profile_bp)
 app.register_blueprint(posts_bp)
