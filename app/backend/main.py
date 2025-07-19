@@ -15,7 +15,11 @@ app = Flask(__name__, static_folder='static')
 app.config.from_object(Config)
 
 # Enable CORS for allowed origins
-ALLOWED_ORIGINS = os.getenv('ALLOWED_ORIGINS', 'http://localhost:5173,http://127.0.0.1:5173,https://your-frontend-url.onrender.com').split(',')
+ALLOWED_ORIGINS = [
+    'https://prok-frontend-e44d.onrender.com',
+    'http://localhost:5173',
+    'http://127.0.0.1:5173'
+]
 CORS(app,
      origins=ALLOWED_ORIGINS,
      methods=['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
