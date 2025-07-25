@@ -19,11 +19,17 @@ app.config.from_object(Config)
 app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET', 'super-secret')
 
 from flask_cors import CORS
-# Enable CORS for all /api/* routes from http://localhost:5173 with credentials
-CORS(app, resources={r"/api/*": {"origins": [
-    "http://localhost:5173",
-    "https://prok-frontend-e44d.onrender.com"
-]}}, supports_credentials=True)
+# Enable CORS for all /api/* routes from localhost and Render with credentials, headers, and methods
+CORS(
+    app,
+    resources={r"/api/*": {"origins": [
+        "http://localhost:5173",
+        "https://prok-frontend-e44d.onrender.com"
+    ]}},
+    supports_credentials=True,
+    allow_headers="*",
+    methods=["GET", "POST", "OPTIONS", "PUT", "DELETE", "PATCH"]
+)
 
 # Initialize extensions
 jwt = JWTManager(app)
@@ -40,10 +46,16 @@ app.register_blueprint(feed_bp)
 app.register_blueprint(jobs_bp)
 app.register_blueprint(messaging_bp)
 
+
 # Add a simple test route
 @app.route('/')
 def home():
     return jsonify({'message': 'Server is running!', 'status': 'ok'})
+
+# Add a global OPTIONS handler for /api/* routes (for CORS preflight)
+@app.route('/api/<path:path>', methods=['OPTIONS'])
+def options_handler(path):
+    return '', 204
 
 def setup_database():
     """Setup database tables"""
