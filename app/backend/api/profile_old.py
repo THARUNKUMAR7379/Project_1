@@ -51,7 +51,12 @@ def get_profile():
             if profile.avatar.startswith('http'):
                 avatar_url = profile.avatar
             else:
-                avatar_url = f"http://localhost:5000{profile.avatar}"
+                import os
+                flask_env = os.environ.get('FLASK_ENV', 'production')
+                if flask_env == 'development':
+                    avatar_url = f"http://localhost:5000{profile.avatar}"
+                else:
+                    avatar_url = f"{profile.avatar}"
         
         return jsonify(success=True, profile={
             'id': profile.id,

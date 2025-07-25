@@ -77,7 +77,10 @@ def create_post():
                 upload_dir = os.path.join(current_app.root_path, 'static', 'uploads', 'posts')
                 os.makedirs(upload_dir, exist_ok=True)
                 filepath = os.path.join(upload_dir, filename)
-                file.save(filepath)
+                # Save file in chunks to avoid memory spikes
+                with open(filepath, 'wb') as f:
+                    for chunk in file.stream:
+                        f.write(chunk)
                 media_url = f'/static/uploads/posts/{filename}'
                 media_type = get_media_type(filename)
             else:
@@ -264,11 +267,16 @@ def like_post(post_id):
 def posts_options():
     from flask import make_response, request
     response = make_response()
-    allowed_origin = 'https://prok-frontend-e44d.onrender.com'
-    if request.headers.get('Origin') in ['http://localhost:5173', 'http://127.0.0.1:5173', allowed_origin]:
-        response.headers['Access-Control-Allow-Origin'] = request.headers['Origin']
+    import os
+    flask_env = os.environ.get('FLASK_ENV', 'production')
+    allowed_origins = [os.environ.get('CORS_ORIGINS', 'https://prok-frontend-e44d.onrender.com')]
+    if flask_env == 'development':
+        allowed_origins += ['http://localhost:5173', 'http://127.0.0.1:5173']
+    origin = request.headers.get('Origin')
+    if origin in allowed_origins:
+        response.headers['Access-Control-Allow-Origin'] = origin
     else:
-        response.headers['Access-Control-Allow-Origin'] = allowed_origin
+        response.headers['Access-Control-Allow-Origin'] = allowed_origins[0]
     response.headers['Access-Control-Allow-Methods'] = 'POST,GET,OPTIONS'
     response.headers['Access-Control-Allow-Headers'] = 'Content-Type,Authorization'
     response.headers['Access-Control-Allow-Credentials'] = 'true'

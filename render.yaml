@@ -16,7 +16,7 @@ services:
       - key: JWT_SECRET_KEY
         sync: false
       - key: ALLOWED_ORIGINS
-        value: https://prok-frontend-e44d.onrender.com,http://localhost:5173
+        value: https://prok-frontend-e44d.onrender.com
       - key: FLASK_ENV
         value: production
       - key: PYTHON_VERSION

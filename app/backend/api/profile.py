@@ -292,11 +292,16 @@ def uploaded_file(filename):
 def profile_options():
     from flask import request, make_response
     response = make_response()
-    allowed_origin = 'https://prok-frontend-e44d.onrender.com'
-    if request.headers.get('Origin') in ['http://localhost:5173', 'http://127.0.0.1:5173', allowed_origin]:
-        response.headers['Access-Control-Allow-Origin'] = request.headers['Origin']
+    import os
+    flask_env = os.environ.get('FLASK_ENV', 'production')
+    allowed_origins = [os.environ.get('CORS_ORIGINS', 'https://prok-frontend-e44d.onrender.com')]
+    if flask_env == 'development':
+        allowed_origins += ['http://localhost:5173', 'http://127.0.0.1:5173']
+    origin = request.headers.get('Origin')
+    if origin in allowed_origins:
+        response.headers['Access-Control-Allow-Origin'] = origin
     else:
-        response.headers['Access-Control-Allow-Origin'] = allowed_origin
+        response.headers['Access-Control-Allow-Origin'] = allowed_origins[0]
     response.headers['Access-Control-Allow-Methods'] = 'GET,PUT,POST,OPTIONS'
     response.headers['Access-Control-Allow-Headers'] = 'Content-Type,Authorization'
     response.headers['Access-Control-Allow-Credentials'] = 'true'
